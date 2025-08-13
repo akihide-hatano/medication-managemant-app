@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('record_medications', function (Blueprint $table) {
+            
             $table->id('record_medication_id'); // 主キー（規約に寄せるなら id でもOK）
             $table->foreignId('record_id')
                 ->constrained('records', 'record_id')
