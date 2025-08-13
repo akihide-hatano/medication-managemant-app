@@ -17,6 +17,10 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+
+    // ER図に合わせて主キー名を user_id に
+    protected $primaryKey = 'user_id';
+
     protected $fillable = [
         'name',
         'email',
@@ -44,5 +48,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function records(){
+        return $this->hasMany(Record::class,'user_id','user_id');
     }
 }
