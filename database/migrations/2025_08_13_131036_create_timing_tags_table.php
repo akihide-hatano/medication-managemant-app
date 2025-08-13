@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('timing_tags', function (Blueprint $table) {
-            $table->id();
+            $table->id('timing_tag');
+            $table->string('timing_name');
+            $table->time('base_time');
+            $table->unsignedTinyInteger('sort_order')->default(0); // 並び順
             $table->timestamps();
+
+            //重複登録を防ぐ
+            $table->unique('timing_name');
         });
     }
 
