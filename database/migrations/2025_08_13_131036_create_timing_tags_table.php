@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('timing_tags', function (Blueprint $table) {
-            $table->id('timing_tag');
+            $table->id('timing_id');
             $table->string('timing_name');
             $table->time('base_time');
             $table->unsignedTinyInteger('sort_order')->default(0); // 並び順
