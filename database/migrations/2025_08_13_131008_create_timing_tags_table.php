@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('records', function (Blueprint $table) {
-            $table->id();
+        Schema::create('timing_tags', function (Blueprint $table) {
+            $table->id('timing_tag_id');
+            $table->string('timing_name');
+            $table->time('base_time');
+            $table->unsignedTinyInteger('sort_order')->default(0); // 並び順
             $table->timestamps();
+
+            //重複登録を防ぐ
+            $table->unique('timing_name');
         });
     }
 
@@ -22,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('records');
+        Schema::dropIfExists('timing_tags');
     }
 };

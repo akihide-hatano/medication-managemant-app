@@ -18,8 +18,6 @@ return new class extends Migration
             $table->text('effects');
             $table->text('side_effects');
             $table->timestamps();
-
-            $table->timestamps();
         });
     }
 
