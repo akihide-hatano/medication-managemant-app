@@ -16,8 +16,13 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
+            'user_name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+                // 他のシーダーを呼び出す
+        $this->call([
+            MedicationsTableSeeder::class,
         ]);
     }
 }
