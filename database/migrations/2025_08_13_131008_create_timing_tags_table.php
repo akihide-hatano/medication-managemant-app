@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('timing_tags', function (Blueprint $table) {
             $table->id('timing_tag_id');
             $table->string('timing_name');
-            $table->time('base_time');
+            $table->time('base_time')->nullable();
             $table->unsignedTinyInteger('sort_order')->default(0); // 並び順
             $table->timestamps();
 

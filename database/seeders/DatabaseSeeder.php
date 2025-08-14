@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 // 他のシーダーを呼び出す
         $this->call([
             MedicationsTableSeeder::class,
+            TimingTagsTableSeeder::class,
         ]);
     }
 }
