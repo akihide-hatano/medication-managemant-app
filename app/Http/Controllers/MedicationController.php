@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medication;
 use Illuminate\Http\Request;
+
+use function Ramsey\Uuid\v1;
 
 class MedicationController extends Controller
 {
@@ -11,7 +14,7 @@ class MedicationController extends Controller
      */
     public function index()
     {
-        //
+        
     }
 
     /**
@@ -19,7 +22,7 @@ class MedicationController extends Controller
      */
     public function create()
     {
-        //
+        return view('medications.create');
     }
 
     /**
@@ -27,7 +30,15 @@ class MedicationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'medication_name' => ['required','string','max:255'],
+            'dosage'          => ['required','string','max:255'],
+            'effects'         => ['required','string'],
+            'side_effects'    => ['required','string'],
+            'notes'           => ['required','string'],
+        ]);
+
+        $medication = Medication::create($data);
     }
 
     /**
