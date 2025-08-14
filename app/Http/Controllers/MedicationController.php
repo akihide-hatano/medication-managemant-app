@@ -12,9 +12,20 @@ class MedicationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        
+        $q = Medication::query();
+
+        if($request->filled('q')){
+            $keyword = $request->string('q')->toString();
+             $q->where('medication_name', 'like', "%{$keyword}%");
+        }
+
+                $medications = $q->orderBy('medication_name')
+                        ->paginate(20)
+                        ->withQueryString();
+
+        return view('medications.index', compact('medications'));
     }
 
     /**
@@ -39,14 +50,18 @@ class MedicationController extends Controller
         ]);
 
         $medication = Medication::create($data);
+
+        return redirect()
+            ->route('medications.show', $medication)
+            ->with('ok', '薬を登録しました。');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Medication $medication)
     {
-        //
+        return view('medications.show',compact('medication'));
     }
 
     /**
@@ -60,16 +75,31 @@ class MedicationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Medication $medication)
     {
-        //
+        $data = $request->validate([
+            'medication_name' => ['required','string','max:255'],
+            'dosage'          => ['nullable','string','max:255'],
+            'effects'         => ['nullable','string'],
+            'side_effects'    => ['nullable','string'],
+            'notes'           => ['nullable','string'],
+        ]);
+
+        $medication->update($data);
+
+        return redirect()
+            ->route('medications.show', $medication)
+            ->with('ok', '薬を更新しました。');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Medication $medication)
     {
-        //
+        $medication->delete();
+        return redirect()
+            ->route('medications.index')
+            ->with('ok', '薬を削除しました。');
     }
 }
