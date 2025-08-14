@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MedicationsTableSeeder::class,
             TimingTagsTableSeeder::class,
+            RecordsTableSeeder::class,
+            RecordMedicationsTableSeeder::class,
         ]);
     }
 }
