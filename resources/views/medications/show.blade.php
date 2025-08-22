@@ -23,7 +23,30 @@
                                <span class="text-gray-600">{{ $medication->notes }}</span>
                             </p>
                         </div>
+                        
+                    <div class="flex items-end justify-end gap-2">
+                         {{-- 一覧へ --}}
+                            <a href="{{ route('medications.index') }}"
+                                class="inline-flex items-center rounded-lg bg-green-600 border px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">
+                                一覧へ
+                            </a>
+                        {{-- 編集 --}}
+                            <a href="{{ route('medications.edit', $medication) }}"
+                                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                                編集
+                            </a>
+                        {{-- 削除 --}}
+                            <form action="{{ route('medications.destroy', $medication) }}" method="POST"
+                                    onsubmit="return confirm('本当に削除しますか？この操作は元に戻せません。');">
+                                    @csrf
+                                    @method('DELETE')
+                                <button type="submit"
+                                class="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
+                                削除
+                                </button>
+                            </form>
                     </div>
+                </div>
 
                 </div>
             </div>
