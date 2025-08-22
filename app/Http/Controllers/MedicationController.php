@@ -62,6 +62,7 @@ class MedicationController extends Controller
     public function show(Medication $medication)
     {
         return view('medications.show',compact('medication'));
+
     }
 
     /**

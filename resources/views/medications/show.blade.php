@@ -7,29 +7,29 @@
                     <h1 class="text-3xl font-bold mb-6 text-center">内服薬詳細</h1>
 
                     {{-- 薬の情報が取得できた場合 --}}
-                    @if ($medications->isNotEmpty())
+                    @if ($medication)
                         {{-- カードコンポーネントの開始 --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            @foreach ($medications as $medication)
+                            @foreach ($medication as $md)
                                 <div class="bg-gray-50 border border-gray-200 rounded-lg shadow-sm p-6">
-                                    <h2 class="text-xl font-bold mb-2 text-indigo-700">{{ $medication->medication_name }}</h2>
+                                    <h2 class="text-xl font-bold mb-2 text-indigo-700">{{ $md->medication_name }}</h2>
                                     <hr class="mb-4">
                                     <div class="space-y-3">
                                         <p>
                                             <span class="font-semibold text-gray-700">処方量:</span>
-                                            <span class="text-gray-600">{{ $medication->dosage }}</span>
+                                            <span class="text-gray-600">{{ $md->dosage }}</span>
                                         </p>
                                         <p>
                                             <span class="font-semibold text-gray-700">作用:</span>
-                                            <span class="text-gray-600">{{ $medication->effects }}</span>
+                                            <span class="text-gray-600">{{ $md->effects }}</span>
                                         </p>
                                         <p>
                                             <span class="font-semibold text-gray-700">副作用:</span>
-                                            <span class="text-gray-600">{{ $medication->side_effects }}</span>
+                                            <span class="text-gray-600">{{ $md->side_effects }}</span>
                                         </p>
                                         <p>
                                             <span class="font-semibold text-gray-700">用途:</span>
-                                            <span class="text-gray-600">{{ $medication->notes }}</span>
+                                            <span class="text-gray-600">{{ $md->notes }}</span>
                                         </p>
                                     </div>
                                 </div>
