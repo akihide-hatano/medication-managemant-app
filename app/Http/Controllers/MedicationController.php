@@ -115,9 +115,17 @@ class MedicationController extends Controller
      */
     public function destroy(Medication $medication)
     {
-        $medication->delete();
-        return redirect()
-            ->route('medications.index')
-            ->with('ok', '薬を削除しました。');
+        try{
+            $medication->delete();
+            return redirect()
+                ->route('medications.index')
+                ->with('ok', '薬を削除しました。');
+        }
+        catch(\Throwable $e){
+        Log::error('Medication destroy failed',['exception'=>$e,'id'=>$medication->id]);
+        return back()
+            ->withInput()
+            ->with('error','内服薬の削除に失敗しました');
+        }
     }
 }
