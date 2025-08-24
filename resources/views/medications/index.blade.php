@@ -21,23 +21,20 @@
             </form>
 
             {{-- 一覧カード --}}
-<div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-    @forelse($medications as $medication)
-        <a href="{{ route('medications.show', $medication) }}"
-           class="block rounded-lg border bg-white p-4 shadow transition hover:-translate-y-1 hover:shadow-lg hover:bg-blue-200">
-            <h3 class="mb-2 text-lg font-bold text-gray-800">{{ $medication->medication_name }}</h3>
-            <p class="text-sm text-gray-500">用量: {{ $medication->dosage ?? '—' }}</p>
-            <p class="mt-1 text-sm text-gray-600 line-clamp-2">
-                {{ Str::limit($medication->effects, 40, '…') ?? '—' }}
-            </p>
-        </a>
-    @empty
-        <p class="col-span-full text-gray-500">薬が登録されていません。</p>
-    @endforelse
-</div>
-
-
-
+            <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                @forelse($medications as $medication)
+                    <a href="{{ route('medications.show', $medication) }}"
+                    class="block rounded-lg border bg-white p-4 shadow transition hover:-translate-y-1 hover:shadow-lg hover:bg-blue-200">
+                        <h3 class="mb-2 text-lg font-bold text-gray-800">{{ $medication->medication_name }}</h3>
+                        <p class="text-sm text-gray-500">用量: {{ $medication->dosage ?? '—' }}</p>
+                        <p class="mt-1 text-sm text-gray-600 line-clamp-2">
+                            {{ Str::limit($medication->effects, 40, '…') ?? '—' }}
+                        </p>
+                    </a>
+                @empty
+                    <p class="col-span-full text-gray-500">薬が登録されていません。</p>
+                @endforelse
+            </div>
             {{-- ページネーション --}}
             <div class="mt-6">
                 {{ $medications->links() }}
