@@ -68,9 +68,9 @@ class MedicationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Medication $medication)
     {
-        //
+        return view('medications.edit',compact('medication'));
     }
 
     /**
