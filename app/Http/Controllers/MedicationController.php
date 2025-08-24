@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Medication;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use function Ramsey\Uuid\v1;
 
@@ -49,11 +50,20 @@ class MedicationController extends Controller
             'notes'           => ['required','string'],
         ]);
 
+        try{
         $medication = Medication::create($data);
-
         return redirect()
             ->route('medications.show', $medication)
             ->with('ok', '薬を登録しました。');
+        }
+        catch(\Throwable $e){
+            Log::error($e);
+
+            return back()
+                ->withInput()
+                ->with('error','登録できませんでした。');
+        }
+        
     }
 
     /**
