@@ -10,7 +10,7 @@ class TimingTag extends Model
     use HasFactory;
 
     protected $table = 'timing_tags';
-    protected $primaryKey = 'timing_id';
+    protected $primaryKey = 'timing_tag_id';
 
     protected $fillable = [
         'timing_name',

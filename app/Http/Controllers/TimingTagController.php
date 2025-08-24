@@ -14,9 +14,8 @@ class TimingTagController extends Controller
      */
     public function index()
     {
-        $timing_tags = TimingTag::orderBy('timing_id')->get();
-        dd($timing_tags);
-        return view('timing_tags.index',compact('timing_tags'));
+        $timing_tags = TimingTag::orderBy('timing_tag_id')->get();
+        return view('timing-tags.index',compact('timing_tags'));
     }
 
     /**
