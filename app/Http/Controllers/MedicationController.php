@@ -48,6 +48,8 @@ class MedicationController extends Controller
             'effects'         => ['required','string'],
             'side_effects'    => ['required','string'],
             'notes'           => ['required','string'],
+        ],[
+            'medication_name.unique'=>'この薬は既に登録されています',
         ]);
 
         try{
@@ -124,7 +126,6 @@ class MedicationController extends Controller
         catch(\Throwable $e){
         Log::error('Medication destroy failed',['exception'=>$e,'id'=>$medication->id]);
         return back()
-            ->withInput()
             ->with('error','内服薬の削除に失敗しました');
         }
     }
