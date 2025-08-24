@@ -37,9 +37,9 @@ class TimingTagController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(TimingTag $timing_tag)
     {
-        //
+        return view('timing-tags.show',compact('timing_tag'));
     }
 
     /**
