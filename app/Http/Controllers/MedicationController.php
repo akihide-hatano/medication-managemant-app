@@ -63,7 +63,6 @@ class MedicationController extends Controller
                 ->withInput()
                 ->with('error','登録できませんでした。');
         }
-        
     }
 
     /**
@@ -96,11 +95,19 @@ class MedicationController extends Controller
             'notes'           => ['nullable','string'],
         ]);
 
-        $medication->update($data);
+        try{
+            $medication->update($data);
+            return redirect()
+                ->route('medications.show', $medication)
+                ->with('ok', '薬を更新しました。');
+        }
+        catch(\Throwable $e){
+            Log::error('Medication update failed',['exception'=>$e,'id'=>$medication->id]);
 
-        return redirect()
-            ->route('medications.show', $medication)
-            ->with('ok', '薬を更新しました。');
+        return back()
+            ->withInput()
+            ->with('error','内服薬に更新に失敗しました');
+        }
     }
 
     /**
