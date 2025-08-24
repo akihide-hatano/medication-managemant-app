@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TimingTag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class TimingTagController extends Controller
 {
@@ -11,7 +14,9 @@ class TimingTagController extends Controller
      */
     public function index()
     {
-        //
+        $timing_tags = TimingTag::orderBy('timing_id')->get();
+        dd($timing_tags);
+        return view('timing_tags.index',compact('timing_tags'));
     }
 
     /**
