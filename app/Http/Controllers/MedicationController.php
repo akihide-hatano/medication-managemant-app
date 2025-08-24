@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Medication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 use function Ramsey\Uuid\v1;
 
@@ -19,7 +20,7 @@ class MedicationController extends Controller
 
         if($request->filled('q')){
             $keyword = $request->string('q')->toString();
-             $q->where('medication_name', 'like', "%{$keyword}%");
+            $q->where('medication_name', 'like', "%{$keyword}%");
         }
 
                 $medications = $q->orderBy('medication_name')
@@ -90,11 +91,14 @@ class MedicationController extends Controller
     public function update(Request $request, Medication $medication)
     {
         $data = $request->validate([
-            'medication_name' => ['required','string','max:255'],
+            'medication_name' => ['required','string','max:255',
+                            Rule::unique('medications','medication_name')->ignore($medication->id),],
             'dosage'          => ['nullable','string','max:255'],
             'effects'         => ['nullable','string'],
             'side_effects'    => ['nullable','string'],
             'notes'           => ['nullable','string'],
+        ],[
+            'medication_name.unique'=>'この薬は既に登録されています',
         ]);
 
         try{
