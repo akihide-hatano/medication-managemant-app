@@ -100,8 +100,17 @@ class TimingTagController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(TimingTag $timing_tag)
     {
-        //
+        try{
+            $timing_tag->delete();
+            return redirect()
+                ->route('timing-tags.index')
+                ->with('ok','時間帯タグを削除しました');
+        }
+        catch(\Throwable $e){
+            Log::error('TimingTag destroy failed', ['e'=>$e, 'id'=>$timing_tag->timing_tag_id]);
+            return back()->with('error','削除できませんでした');
+        }
     }
 }
