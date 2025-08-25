@@ -23,29 +23,29 @@
                             <td class="px-3 py-2 border">
                                 {{ $tag->base_time ? substr($tag->base_time, 0, 5) : '—' }}
                             </td>
-<td class="px-3 py-2 border text-center">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {{-- 編集ボタン --}}
-        <form action="{{ route('timing-tags.edit', $tag) }}" method="GET" class="m-0 contents">
-            <button type="submit"
-                class="inline-flex justify-center items-center px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700  sm:max-w-[150px]">
-                編集
-            </button>
-        </form>
+                            <td class="px-3 py-2 border text-center">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 place-items-center">
+                                    {{-- 編集ボタン --}}
+                                    <form action="{{ route('timing-tags.edit', $tag) }}" method="GET" class="m-0 contents">
+                                        <button type="submit"
+                                            class="inline-flex justify-center items-center px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 w-auto sm:w-auto sm:min-w-[80px]">
+                                            編集
+                                        </button>
+                                    </form>
 
-        {{-- 削除ボタン --}}
-        <form action="{{ route('timing-tags.destroy', $tag) }}"
-            method="POST" class="m-0 contents"
-            onsubmit="return confirm('削除しますか？')">
-            @csrf
-            @method('DELETE')
-            <button type="submit"
-                class="inline-flex justify-center items-center px-3 py-1 text-sm font-semibold text-white bg-red-600 rounded hover:bg-red-700 sm:max-w-[150px]">
-                削除
-            </button>
-        </form>
-    </div>
-</td>
+                                    {{-- 削除ボタン --}}
+                                    <form action="{{ route('timing-tags.destroy', $tag) }}"
+                                        method="POST" class="m-0 contents"
+                                        onsubmit="return confirm('削除しますか？')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="inline-flex justify-center items-center px-3 py-1 text-sm font-semibold text-white bg-red-600 rounded hover:bg-red-700 w-auto sm:w-auto sm:min-w-[80px]">
+                                            削除
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
