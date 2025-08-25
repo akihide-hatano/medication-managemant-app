@@ -60,21 +60,41 @@ class TimingTagController extends Controller
     {
         return view('timing-tags.show',compact('timing_tag'));
     }
-
     /**
      * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    */
+    public function edit(TimingTag $timing_tag)
     {
-        //
+        return view('timing-tags.show',compact('timing_tag'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, TimingTag $timing_tag)
     {
-        //
+        $data = $request->validate([
+            'timing_name'=>[
+                'required','string','max:50',
+                Rule::unique('timing_tags','timing_name')
+                ->ignore($timing_tag->timing_tag_id,'timing_tag_id')
+            ],
+            'base_time'=>['required','date_format:H:i'],
+        ],[
+            'timing_name.unique' => '同じ名前の既に登録されています',
+            'base_time.date_format' => '時間を⚪︎時⚪︎で入力してください',
+        ]);
+
+        try{
+            $timing_tag->update($data);
+            return redirect()
+                ->route('timing-tags.show',$timing_tag)
+                ->with('ok','時間帯が更新されました。');
+        }
+        catch(\Throwable $e){
+            Log::error('TimingTag update failed',['e'=>$e,'id'=>$timing_tag->timing_tag_id]);
+            return back()->withInput()->with('error','更新できませんでした');
+        }
     }
 
     /**
