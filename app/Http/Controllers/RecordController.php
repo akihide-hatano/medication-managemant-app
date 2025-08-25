@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Record;
 use Illuminate\Http\Request;
 
 class RecordController extends Controller
@@ -9,9 +10,13 @@ class RecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $records = Record::with(['medication','timingtag'])
+                ->where('user_id',$request->user()->id())
+                ->orderByDesc('taken_at')
+                ->paginate(20);
+        return view('records.index',compact('records'));
     }
 
     /**
@@ -19,7 +24,7 @@ class RecordController extends Controller
      */
     public function create()
     {
-        //
+        return view('records.create',compact('records'));
     }
 
     /**
