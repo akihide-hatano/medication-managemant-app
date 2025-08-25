@@ -32,7 +32,6 @@
                                             編集
                                         </button>
                                     </form>
-
                                     {{-- 削除ボタン --}}
                                     <form action="{{ route('timing-tags.destroy', $tag) }}"
                                         method="POST" class="m-0 contents"
