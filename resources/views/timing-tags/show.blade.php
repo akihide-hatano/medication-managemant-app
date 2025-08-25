@@ -15,7 +15,7 @@
             </p>
             <p class="mb-6">
                 <span class="font-semibold text-gray-700">基準時刻：</span>
-                <span class="text-gray-800">{{ $timing_tag->base_time ?? '—' }}</span>
+                <span class="text-gray-800">{{ $timing_tag->base_time ? substr($timing_tag->base_time,0,5) : '—' }}</span>
             </p>
 
             <div class="flex justify-between">

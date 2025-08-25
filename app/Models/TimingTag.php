@@ -17,10 +17,6 @@ class TimingTag extends Model
         'base_time',
     ];
 
-    protected $casts = [
-        'base_time' => 'datetime:H:i:s',
-    ];
-
     public function records()
     {
         return $this->hasMany(Record::class, 'timing_id', 'timing_id');

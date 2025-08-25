@@ -33,7 +33,7 @@ class TimingTagController extends Controller
     {
         $data = $request->validate([
             'timing_name' => ['required','string','max:50','unique:timing_tags,timing_name'],
-            'base_time' => ['required','bate_format:H:i']
+            'base_time' => ['required','date_format:H:i']
         ],[
         'timing_name.unique'    => '同名のタグは既に登録されています。',
         'base_time.date_format' => '時間は HH:MM 形式で入力してください（例: 09:00）。',
