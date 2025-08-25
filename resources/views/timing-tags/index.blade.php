@@ -22,15 +22,15 @@
                             <td class="px-3 py-2 border">{{ $tag->timing_name }}</td>
                             <td class="px-3 py-2 border"> {{ $tag->base_time ? substr($tag->base_time, 0, 5) : '—' }}</td>
                             <td class="px-3 py-2 border text-center">
-                                {{-- <a href="{{ route('timing_tags.edit', $tag) }}"
-                                class="text-indigo-600 hover:underline">編集</a> --}}
-                                {{-- <form action="{{ route('timing_tags.destroy', $tag) }}"
+                                <a href="{{ route('timing-tags.edit', $tag) }}"
+                                class="text-indigo-600 hover:underline">編集</a>
+                                <form action="{{ route('timing-tags.destroy', $tag) }}"
                                     method="POST"
                                     onsubmit="return confirm('削除しますか？')"
                                     class="inline">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:underline">削除</button>
-                                </form> --}}
+                                </form>
                             </td>
                         </tr>
                     @endforeach

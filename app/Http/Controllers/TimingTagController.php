@@ -65,7 +65,7 @@ class TimingTagController extends Controller
     */
     public function edit(TimingTag $timing_tag)
     {
-        return view('timing-tags.show',compact('timing_tag'));
+        return view('timing-tags.edit',compact('timing_tag'));
     }
 
     /**
