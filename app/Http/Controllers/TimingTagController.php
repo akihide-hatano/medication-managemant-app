@@ -23,7 +23,7 @@ class TimingTagController extends Controller
      */
     public function create()
     {
-        //
+        return view('timing-tags.create');
     }
 
     /**
@@ -31,7 +31,26 @@ class TimingTagController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'timing_name' => ['required','string','max:50','unique:timing_tags,timing_name'],
+            'base_time' => ['required','bate_format:H:i']
+        ],[
+        'timing_name.unique'    => '同名のタグは既に登録されています。',
+        'base_time.date_format' => '時間は HH:MM 形式で入力してください（例: 09:00）。',
+        ]);
+
+        try{
+            $tag = TimingTag::create($data);
+            return redirect()
+                    ->route('timing-tags.show',$tag)
+                    ->with('ok','時間を追加しました');
+        }
+        catch(\Throwable $e){
+            Log::error($e);
+            return back()
+            ->withInput()
+            ->with('error','登録できませんでした。');
+        }
     }
 
     /**
