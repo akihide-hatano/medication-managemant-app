@@ -97,12 +97,38 @@ public function store(Request $request)
             abort(403,'この記録にはアクセスできません');
         }
 
-        //dataのvalidateする
-        $data = $request -> validate(
+        $data = $request->validate(
             [
-                'record_date' => ['']
-            ]
-            );
+                'record_date' => ['required','date_format:Y-m-d','before_or_equal:today'],
+                'timing_id'   => ['required','integer','exists:timing_tags,timing_id'],
+            ],
+            [],
+            ['record_date'=>'日付','timing_id'=>'タイミング']
+        );
+
+        // 自分の他レコードで同一(日付×タイミング)が無いか
+        $exist = Record::where('user_id',Auth::id())
+            ->where('record_data',$data['record_date'])
+            ->where('timing_id',$data['timing_id'])
+            ->where('record_id','!=',$record->record_id)
+            ->exists();
+
+        if($exist){
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'record_date'=>'同じ日付、タイミングの記録がすでにあります。'
+                ]);
+        }
+
+        $record->update([
+            'record_date' => $data['record_date'],
+            'timing_id'   => $data['timing_id'],
+        ]);
+
+        return redirect()->route('records.show',$record)
+                ->with('ok','内服記録を更新しました');
+
     }
 
     /**
