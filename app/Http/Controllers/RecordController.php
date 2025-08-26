@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Record;
-use GuzzleHttp\Psr7\Request as Psr7Request;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +11,7 @@ class RecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-public function index(Request $request)
+public function index()
 {
     $records = Record::with(['recordMedications.medication','timingTag'])
         ->where('user_id', Auth::id())   // ← ここがポイント
@@ -58,11 +57,10 @@ public function store(Request $request)
     return back()->with('ok','内服を記録しました。');
 }
 
-
     /**
      * Display the specified resource.
      */
-    public function show(Request $request,Record $record)
+    public function show(Record $record)
     {
         //認証チェック
         if( $record->user_id !== Auth::id()){
@@ -86,7 +84,6 @@ public function store(Request $request)
         }
         return view('records.edit',compact('record'));
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -108,7 +105,7 @@ public function store(Request $request)
 
         // 自分の他レコードで同一(日付×タイミング)が無いか
         $exist = Record::where('user_id',Auth::id())
-            ->where('record_data',$data['record_date'])
+            ->where('record_date',$data['record_date'])
             ->where('timing_id',$data['timing_id'])
             ->where('record_id','!=',$record->record_id)
             ->exists();
