@@ -15,10 +15,8 @@ public function index()
 {
     $records = Record::with(['recordMedications.medication','timingTag'])
         ->where('user_id', Auth::id())   // ← ここがポイント
-        ->orderByDesc('record_date')
+        ->orderByDesc('taken_at')
         ->paginate(20);
-
-    dd($records);
     return view('records.index', compact('records'));
 }
 
