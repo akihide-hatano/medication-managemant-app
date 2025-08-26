@@ -2,16 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+use function Ramsey\Uuid\v1;
 
 class RecordMedicationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    /** 親Record配下の明細一覧（/records/{record}/record-medications） */
+    public function index(Record $record)
     {
-        //
+        //認証チェック
+        if( $record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        $items = $record->recordMedications()
+                ->with('medication')
+                ->orderBy('record_medication_id')
+                ->paginate(20);
+
+        return view('record_medications.index',compact('record','items'));
     }
 
     /**
