@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medication;
 use App\Models\Record;
+use App\Models\RecordMedication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,17 +34,57 @@ class RecordMedicationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request,Record $record)
     {
-        //
+        //認証チェック
+        if( $record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        $medications = Medication::orderBy('medication_name')
+                    ->get(['medication_id','medication_name']);
+
+        return view('record_medications.create',compact('record','medications'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request,Record $record)
     {
-        //
+        //認証チェック
+        if( $record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        $data = $request->validate([
+            'medication_id' => ['required','integer','exists:medications,medication_id'],
+            'taken_dosage'  => ['nullable','string','max:255'],
+            'is_completed'  => ['required','boolean'],
+            'reason_not_taken' => ['nullable','string'],
+        ]);
+
+        // 薬差し替え時の重複チェック
+        $dup = RecordMedication::where('record_id', $record->record_id)
+            ->where('medication_id',(int)$data['medication_id'])
+            ->exists();
+
+        if ($dup) {
+            return back()->withInput()->withErrors([
+                'medication_id' => 'この記録には同じ薬が既に登録されています。',
+            ]);
+        }
+
+        RecordMedication::created([
+            'record_id' => $record ->record_id,
+            'medication_id' => (int)$data['medication_id'],
+            'taken_dosage'  =>$date['taken_dosage'] ?? null,
+            'is_completed'  => (bool)($data['is_completed'] ?? false),
+            'reason_not_taken' => $data['reason_not_taken'] ?? null,
+        ]);
+
+        return redirect()->route('record_medication,show',$record)
+                ->with('ok','内服詳細を追加しました');
     }
 
     /**
