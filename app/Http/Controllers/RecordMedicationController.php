@@ -130,6 +130,39 @@ class RecordMedicationController extends Controller
         if( $recordMedication->record->user_id !== Auth::id()){
             abort(403,'この記録にはアクセスできません');
         }
+
+        //入力バリデーション
+        $data = $request->validate([
+            'medication_id' => ['required','integer','exists:medications,medication_id'],
+            'taken_dosage'     => ['nullable','string','max:255'],
+            'is_completed'     => ['required','boolean'],
+            'reason_not_taken' => ['nullable','string'],
+        ]);
+
+        //同一record内での重複を禁止
+        $dup = RecordMedication::where('record_id',$recordMedication->record_id)
+                ->where('medication_id',(int)$data['medication_id'])
+                ->where('record_medication_id','!=',$recordMedication->record_medication_id)
+                ->exists();
+
+        if($dup){
+            return back()->withInput()->withErrors([
+                'medication_id' => 'この記録には同じ'
+            ]);
+        }
+
+        //更新
+        $recordMedication->update([
+        'medication_id'     => (int)$data['medication_id'],
+        'taken_dosage'      => $data['taken_dosage'] ?? null,
+        'is_completed'      => (bool)$data['is_completed'],
+        'reason_not_taken'  => $data['reason_not_taken'] ?? null,
+        ]);
+
+
+        return redirect()
+        ->route('records.show', $recordMedication->record)
+        ->with('ok', '内服明細を更新しました。');
     }
 
     /**
