@@ -104,17 +104,32 @@ class RecordMedicationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(RecordMedication $recordMedication)
     {
-        //
+        //認証チェック
+        if( $recordMedication->record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        //画像に必要な関連をロード
+        $recordMedication->load(['record.timingTag','medication']);
+
+        //セレクト用
+        $medications = Medication::orderBy('medication_name')
+                    ->get(['medication_id','medication_name']);
+
+        return view('record_medications.edit', compact('recordMedication','medications'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, RecordMedication $recordMedication)
     {
-        //
+        //認証チェック
+        if( $recordMedication->record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
     }
 
     /**
