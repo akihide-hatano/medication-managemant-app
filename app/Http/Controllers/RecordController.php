@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Record;
+use GuzzleHttp\Psr7\Request as Psr7Request;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -77,24 +78,48 @@ public function store(Request $request)
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Record $record)
     {
-        //
+        //認証チェック
+        if( $record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+        return view('records.edit',compact('record'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Record $record)
     {
-        //
+        //認証チェック
+        if( $record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        //dataのvalidateする
+        $data = $request -> validate(
+            [
+                'record_date' => ['']
+            ]
+            );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Record $record)
     {
-        //
+        //認証チェック
+        if( $record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        $record->delete();
+
+        return redirect()
+                ->route('records.index')
+                ->with('ok','内服記録を削除しました');
+
     }
 }
