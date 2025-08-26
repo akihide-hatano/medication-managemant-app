@@ -68,7 +68,9 @@ public function store(Request $request)
         }
 
         //必要な関連をload
-        $record->load(['timingTag']);
+        $record->load(['timingTag',
+                    'recordMedications.medication',
+                ]);
 
         return view('records.show',compact('record'));
     }
