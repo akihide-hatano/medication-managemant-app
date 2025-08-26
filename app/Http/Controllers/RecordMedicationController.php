@@ -168,8 +168,19 @@ class RecordMedicationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(RecordMedication $recordMedication)
     {
-        //
+        //認証チェック
+        if( $recordMedication->record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        $record = $recordMedication->record;
+        $recordMedication->delete();
+
+        return redirect()
+                ->route('record_medications',$record)
+                ->with('ok','内服記録を削除しました');
+
     }
 }
