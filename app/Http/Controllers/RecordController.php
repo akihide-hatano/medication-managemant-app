@@ -18,6 +18,7 @@ public function index()
         ->orderByDesc('record_date')
         ->paginate(20);
 
+    dd($records);
     return view('records.index', compact('records'));
 }
 
