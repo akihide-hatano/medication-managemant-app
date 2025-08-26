@@ -75,10 +75,10 @@ class RecordMedicationController extends Controller
             ]);
         }
 
-        RecordMedication::created([
+        RecordMedication::create([
             'record_id' => $record ->record_id,
             'medication_id' => (int)$data['medication_id'],
-            'taken_dosage'  =>$date['taken_dosage'] ?? null,
+            'taken_dosage'  =>$data['taken_dosage'] ?? null,
             'is_completed'  => (bool)($data['is_completed'] ?? false),
             'reason_not_taken' => $data['reason_not_taken'] ?? null,
         ]);
