@@ -4,43 +4,74 @@ namespace App\Http\Controllers;
 
 use App\Models\Record;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RecordController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $records = Record::with(['medication','timingtag'])
-                ->where('user_id',$request->user()->id())
-                ->orderByDesc('taken_at')
-                ->paginate(20);
-        return view('records.index',compact('records'));
-    }
+public function index(Request $request)
+{
+    $records = Record::with(['recordMedications.medication','timingTag'])
+        ->where('user_id', Auth::id())   // ← ここがポイント
+        ->orderByDesc('record_date')
+        ->paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('records.create',compact('records'));
-    }
+    return view('records.index', compact('records'));
+}
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+public function create()
+{
+    return view('records.create');
+}
+
+public function store(Request $request)
+{
+    $data = $request->validate(
+        [
+            'timing_id'   => ['required','integer','exists:timing_tags,timing_id'],
+            'record_date' => ['required','date_format:Y-m-d','before_or_equal:today'],
+        ],
+        [
+            'timing_id.required'          => 'タイミングは必須です。',
+            'timing_id.integer'           => 'タイミングは数値で指定してください。',
+            'timing_id.exists'            => '指定のタイミングが見つかりません。',
+            'record_date.date_format'     => '日付は YYYY-MM-DD の形式で入力してください。',
+            'record_date.before_or_equal' => '未来の日付は指定できません。',
+        ],
+        [
+            'timing_id'   => 'タイミング',
+            'record_date' => '日付',
+        ]
+    );
+
+    $date = $data['record_date'] ?? now()->toDateString();
+
+    Record::firstOrCreate([
+        'user_id'     => Auth::id(),
+        'record_date' => $date,
+        'timing_id'   => (int)$data['timing_id'],
+    ]);
+
+    return back()->with('ok','内服を記録しました。');
+}
+
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request,Record $record)
     {
-        //
+        //認証チェック
+        if( $record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        //必要な関連をload
+        $record->load(['timingTag']);
+
+        return view('records.show',compact('record'));
     }
 
     /**
