@@ -90,9 +90,15 @@ class RecordMedicationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(RecordMedication $recordMedication)
     {
-        //
+        //認証チェック
+        if( $recordMedication->record->user_id !== Auth::id()){
+            abort(403,'この記録にはアクセスできません');
+        }
+
+        $recordMedication->load(['medication','record.timingTag']);
+        return view('record_medications.show', compact('recordMedication'));
     }
 
     /**
