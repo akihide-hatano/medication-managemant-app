@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medication;
 use App\Models\Record;
+use App\Models\TimingTag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +24,13 @@ class RecordController extends Controller
 
     public function create()
     {
-        return view('records.create');
+        $timingTags = TimingTag::orderBy('timing_name')
+                        ->get(['timing_tag_id','timing_name','base_time']);
+
+        $medications = Medication::orderBy('medication_name')
+                        ->get(['medication_id','medication_name']);
+
+        return view('records.create',compact('timingTags','medications'));
     }
 
     public function store(Request $request)
