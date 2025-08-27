@@ -58,6 +58,9 @@
                     </div>
                 @endforeach
             </div>
+            <div class="mt-6">
+                {{ $records->links() }}
+            </div>
         @endif
         <div class="mt-6">
             <a class="inline-block bg-blue-600 text-white px-4 py-2 rounded shodow hover:bg-blue-700 transition"
