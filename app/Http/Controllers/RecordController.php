@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Medication;
 use App\Models\Record;
 use App\Models\TimingTag;
+use App\Models\RecordMedication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class RecordController extends Controller
 {
@@ -33,35 +36,75 @@ class RecordController extends Controller
         return view('records.create',compact('timingTags','medications'));
     }
 
+/** 保存：親＋子を一括作成 */
     public function store(Request $request)
     {
         $data = $request->validate(
             [
-                'timing_id'   => ['required','integer','exists:timing_tags,timing_id'],
-                'record_date' => ['required','date_format:Y-m-d','before_or_equal:today'],
+                'taken_date'     => ['required','date_format:Y-m-d','before_or_equal:today'],
+                'timing_tag_id'  => ['required','integer','exists:timing_tags,timing_tag_id'],
+
+                // 子（薬）配列：最低1件は選択させたい場合は required|array に
+                'medications'            => ['nullable','array'],
+                'medications.*.id'       => ['required','integer','exists:medications,medication_id'],
+                'medications.*.dosage'   => ['nullable','string','max:255'],
+                'medications.*.done'     => ['nullable','boolean'], // チェック無しなら来ない
             ],
-            [
-                'timing_id.required'          => 'タイミングは必須です。',
-                'timing_id.integer'           => 'タイミングは数値で指定してください。',
-                'timing_id.exists'            => '指定のタイミングが見つかりません。',
-                'record_date.date_format'     => '日付は YYYY-MM-DD の形式で入力してください。',
-                'record_date.before_or_equal' => '未来の日付は指定できません。',
-            ],
-            [
-                'timing_id'   => 'タイミング',
-                'record_date' => '日付',
-            ]
+            [],
+            ['taken_date'=>'日付','timing_tag_id'=>'タイミング','medications'=>'内服薬']
         );
 
-        $date = $data['record_date'] ?? now()->toDateString();
+        $tag = TimingTag::findOrFail($data['timing_tag_id']);
+        $base = $tag->base_time ?: '09:00:00';
+        $takenAt = Carbon::parse($data['taken_date'].' '.$base);
 
-        Record::firstOrCreate([
-            'user_id'     => Auth::id(),
-            'record_date' => $date,
-            'timing_id'   => (int)$data['timing_id'],
-        ]);
+        return DB::transaction(function () use ($data, $takenAt) {
 
-        return back()->with('ok','内服を記録しました。');
+            // 同一ユーザ×同日×同タイミング の重複を避ける
+            $record = Record::firstOrCreate(
+                [
+                    'user_id'       => Auth::id(),
+                    'timing_tag_id' => (int)$data['timing_tag_id'],
+                    'taken_at'      => $takenAt, // 日付＋基準時刻
+                ],
+                []
+            );
+
+            // 子明細（薬）を一括作成（重複を除外）
+            $items = collect($data['medications'] ?? [])
+                ->unique(fn ($m) => (int)$m['id']) // 同じ薬の重複選択を除外
+                ->map(function ($m) use ($record) {
+                    return [
+                        'record_id'        => $record->record_id,
+                        'medication_id'    => (int)$m['id'],
+                        'taken_dosage'     => $m['dosage'] ?? null,
+                        'is_completed'     => (bool)($m['done'] ?? false),
+                        'reason_not_taken' => null,
+                        'created_at'       => now(),
+                        'updated_at'       => now(),
+                    ];
+                })
+                ->values()
+                ->all();
+
+            if (!empty($items)) {
+                // 既に同じ薬が入っていないかチェックしてから差分だけ入れる
+                $existingIds = RecordMedication::where('record_id', $record->record_id)
+                    ->pluck('medication_id')->all();
+
+                $toInsert = array_values(array_filter($items, fn($row) =>
+                    !in_array($row['medication_id'], $existingIds, true)
+                ));
+
+                if ($toInsert) {
+                    RecordMedication::insert($toInsert);
+                }
+            }
+
+            return redirect()
+                ->route('records.show', $record)
+                ->with('ok','記録を作成し、選択した内服薬を登録しました。');
+        });
     }
 
     /**
