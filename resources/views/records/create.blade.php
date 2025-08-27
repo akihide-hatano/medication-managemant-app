@@ -6,13 +6,12 @@
   <div class="max-w-3xl mx-auto p-4" x-data="medForm()">
     <form method="POST" action="{{ route('records.store') }}" class="space-y-6">
       @csrf
-
       {{-- 日付・タイミング --}}
       <div class="grid sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium mb-1">日付</label>
           <input type="date" name="taken_date" value="{{ old('taken_date', now()->toDateString()) }}"
-                 class="w-full border rounded px-3 py-2">
+                class="w-full border rounded px-3 py-2">
           @error('taken_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
 
