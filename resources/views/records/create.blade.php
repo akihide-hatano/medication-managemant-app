@@ -1,17 +1,31 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold">記録の新規作成</h2>
-    </x-slot>
+  <x-slot name="header">
+    <h2 class="text-xl font-semibold">記録の新規作成</h2>
+  </x-slot>
 
-  <div class="max-w-3xl mx-auto p-4" x-data="medForm()">
+  <div class="max-w-3xl mx-auto p-4"
+       x-data="medForm()">
+    {{-- 全体のエラー --}}
+    @if ($errors->any())
+      <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <ul class="list-disc list-inside">
+          @foreach ($errors->all() as $e)
+            <li>{{ $e }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
     <form method="POST" action="{{ route('records.store') }}" class="space-y-6">
       @csrf
+
       {{-- 日付・タイミング --}}
       <div class="grid sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium mb-1">日付</label>
-          <input type="date" name="taken_date" value="{{ old('taken_date', now()->toDateString()) }}"
-                class="w-full border rounded px-3 py-2">
+          <input type="date" name="taken_date"
+                 value="{{ old('taken_date', now()->toDateString()) }}"
+                 class="w-full border rounded px-3 py-2">
           @error('taken_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
 
@@ -28,64 +42,109 @@
         </div>
       </div>
 
-      {{-- 薬を一括選択（複数） --}}
-      <div>
-        <label class="block text-sm font-medium mb-1">内服薬（複数選択可）</label>
-        <select name="medications[]" multiple size="8"
-                class="w-full border rounded px-3 py-2"
-                x-model="selected">
-          @foreach($medications as $m)
-            <option value="{{ $m->medication_id }}">
-              {{ $m->medication_name }}
-            </option>
-          @endforeach
-        </select>
-        @error('medications')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-        @error('medications.*')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-        <p class="text-xs text-gray-500 mt-1">Ctrl/⌘ を押しながらクリックで複数選択できます。</p>
-      </div>
+      {{-- 内服薬行（1行＝1内服薬） --}}
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-semibold">内服薬</h3>
+          <button type="button"
+                  class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                  @click="addRow()">
+            行を追加
+          </button>
+        </div>
 
-      {{-- 選んだ薬だけ詳細入力（用量／完了） --}}
-      <template x-if="selected.length">
-        <div class="border rounded p-4 space-y-3">
-          <h3 class="font-semibold">選択した薬の詳細</h3>
+        <template x-for="(row, i) in meds" :key="i">
+          <div class="grid sm:grid-cols-12 gap-3 p-3 border rounded bg-gray-50">
+            {{-- 薬の選択 --}}
+            <div class="sm:col-span-6">
+              <label class="block text-xs text-gray-600 mb-1">薬 <span class="text-red-500">*</span></label>
+              <select class="w-full border rounded px-3 py-2"
+                      x-model="row.medication_id"
+                      :name="`medications[${i}][medication_id]`"
+                      required>
+                <option value="">選択してください</option>
+                @foreach($medications as $m)
+                  <option value="{{ $m->medication_id }}">{{ $m->medication_name }}</option>
+                @endforeach
+              </select>
+            </div>
 
-          <template x-for="mid in selected" :key="mid">
-            <div class="grid sm:grid-cols-12 items-center gap-3">
-              <div class="sm:col-span-5">
-                <span class="font-medium" x-text="medName(mid)"></span>
-              </div>
-              <div class="sm:col-span-5">
-                <input class="w-full border rounded px-3 py-2"
-                       :name="`dosages[${mid}]`" placeholder="用量（任意）">
-              </div>
-              <label class="sm:col-span-2 inline-flex items-center gap-2">
-                <input type="checkbox" :name="`done[${mid}]`" value="1">
-                <span>服用完了</span>
+            {{-- 服用量 --}}
+            <div class="sm:col-span-4">
+              <label class="block text-xs text-gray-600 mb-1">服用量（任意）</label>
+              <select class="w-full border rounded px-3 py-2"
+                      x-model="row.taken_dosage"
+                      :name="`medications[${i}][taken_dosage]`">
+                <option value="">未指定</option>
+                <option value="1錠">1 錠</option>
+                <option value="2錠">2 錠</option>
+                <option value="3錠">3 錠</option>
+                <option value="4錠">4 錠</option>
+                <option value="5錠">5 錠</option>
+              </select>
+            </div>
+
+            {{-- 完了チェック --}}
+            <div class="sm:col-span-2 flex items-end">
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox"
+                       class="rounded"
+                       x-model="row.is_completed"
+                       :name="`medications[${i}][is_completed]`"
+                       value="1">
+                <span class="text-sm">完了</span>
               </label>
             </div>
-          </template>
-        </div>
-      </template>
 
-      <div class="pt-2">
+            {{-- 行削除 --}}
+            <div class="sm:col-span-12 text-right">
+              <button type="button"
+                      class="text-sm text-red-600 hover:text-red-800"
+                      @click="removeRow(i)"
+                      x-show="meds.length > 1">
+                この行を削除
+              </button>
+            </div>
+          </div>
+        </template>
+
+        {{-- フィールド単位のエラー表示（ワイルドカード） --}}
+        @error('medications')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+        @error('medications.*.medication_id')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+        @error('medications.*.taken_dosage')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+        @error('medications.*.is_completed')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+      </div>
+
+      <div class="pt-2 flex items-center gap-3">
         <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">保存する</button>
+        <a href="{{ route('records.index') }}"
+           class="px-4 py-2 rounded border hover:bg-gray-50">キャンセル</a>
       </div>
     </form>
   </div>
 
-  {{-- Alpine 初期化 --}}
   <script>
-    function medForm() {
-      const names = {
-        @foreach($medications as $m)
-          {{ $m->medication_id }}: @json($m->medication_name),
-        @endforeach
-      };
+    function medForm () {
+      // old() から初期行を復元（なければ1行だけ空で作成）
+      const old = @json(old('medications', []));
+      const normalize = (r) => ({
+        medication_id: r?.medication_id ?? '',
+        taken_dosage : r?.taken_dosage ?? '',
+        // チェックボックスは '1' が来ていれば true
+        is_completed : !!(r?.is_completed)
+      });
+
+      const initial = old.length ? old.map(normalize) : [normalize({})];
+
       return {
-        selected: @json(old('medications', [])),
-        medName(id){ return names[id] ?? `#${id}`; },
-      };
+        meds: initial,
+        addRow(){
+          this.meds.push(normalize({}));
+        },
+        removeRow(i){
+          this.meds.splice(i, 1);
+        }
+      }
     }
   </script>
 </x-app-layout>
