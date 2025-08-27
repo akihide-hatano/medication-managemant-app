@@ -11,50 +11,50 @@ class RecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-public function index()
-{
-    $records = Record::with(['recordMedications.medication','timingTag'])
-        ->where('user_id', Auth::id())   // ← ここがポイント
-        ->orderByDesc('taken_at')
-        ->paginate(20);
-    return view('records.index', compact('records'));
-}
+    public function index()
+    {
+        $records = Record::with(['recordMedications.medication','timingTag'])
+            ->where('user_id', Auth::id())   // ← ここがポイント
+            ->orderByDesc('taken_at')
+            ->paginate(20);
+        return view('records.index', compact('records'));
+    }
 
-public function create()
-{
-    return view('records.create');
-}
+    public function create()
+    {
+        return view('records.create');
+    }
 
-public function store(Request $request)
-{
-    $data = $request->validate(
-        [
-            'timing_id'   => ['required','integer','exists:timing_tags,timing_id'],
-            'record_date' => ['required','date_format:Y-m-d','before_or_equal:today'],
-        ],
-        [
-            'timing_id.required'          => 'タイミングは必須です。',
-            'timing_id.integer'           => 'タイミングは数値で指定してください。',
-            'timing_id.exists'            => '指定のタイミングが見つかりません。',
-            'record_date.date_format'     => '日付は YYYY-MM-DD の形式で入力してください。',
-            'record_date.before_or_equal' => '未来の日付は指定できません。',
-        ],
-        [
-            'timing_id'   => 'タイミング',
-            'record_date' => '日付',
-        ]
-    );
+    public function store(Request $request)
+    {
+        $data = $request->validate(
+            [
+                'timing_id'   => ['required','integer','exists:timing_tags,timing_id'],
+                'record_date' => ['required','date_format:Y-m-d','before_or_equal:today'],
+            ],
+            [
+                'timing_id.required'          => 'タイミングは必須です。',
+                'timing_id.integer'           => 'タイミングは数値で指定してください。',
+                'timing_id.exists'            => '指定のタイミングが見つかりません。',
+                'record_date.date_format'     => '日付は YYYY-MM-DD の形式で入力してください。',
+                'record_date.before_or_equal' => '未来の日付は指定できません。',
+            ],
+            [
+                'timing_id'   => 'タイミング',
+                'record_date' => '日付',
+            ]
+        );
 
-    $date = $data['record_date'] ?? now()->toDateString();
+        $date = $data['record_date'] ?? now()->toDateString();
 
-    Record::firstOrCreate([
-        'user_id'     => Auth::id(),
-        'record_date' => $date,
-        'timing_id'   => (int)$data['timing_id'],
-    ]);
+        Record::firstOrCreate([
+            'user_id'     => Auth::id(),
+            'record_date' => $date,
+            'timing_id'   => (int)$data['timing_id'],
+        ]);
 
-    return back()->with('ok','内服を記録しました。');
-}
+        return back()->with('ok','内服を記録しました。');
+    }
 
     /**
      * Display the specified resource.
