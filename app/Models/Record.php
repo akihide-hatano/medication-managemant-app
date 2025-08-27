@@ -29,7 +29,7 @@ class Record extends Model
 
     public function timingTag()
     {
-        return $this->belongsTo(TimingTag::class, 'timing_id', 'timing_id');
+        return $this->belongsTo(TimingTag::class, 'timing_tag_id', 'timing_tag_id');
     }
 
     public function recordMedications()
