@@ -1,5 +1,7 @@
 <x-app-layout>
-  <x-slot name="header"><h2 class="text-xl font-semibold">記録の新規作成</h2></x-slot>
+    <x-slot name="header">
+        <h2 class="text-xl font-semibold">記録の新規作成</h2>
+    </x-slot>
 
   <div class="max-w-3xl mx-auto p-4" x-data="medForm()">
     <form method="POST" action="{{ route('records.store') }}" class="space-y-6">
