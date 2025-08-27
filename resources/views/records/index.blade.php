@@ -7,30 +7,45 @@
     <p>まだ記録がありません。</p>
   @else
     <div class="space-y-3">
-      @foreach ($records as $record)
-        <div class="border rounded p-3">
-          <div class="text-sm text-gray-600">
-            日付：
-            {{ $record->taken_at ? $record->taken_at->format('Y-m-d H:i') : '—' }}
-            ／ タイミング：
-            {{ $record->timingTag->timing_name ?? '—' }}
-          </div>
+@foreach($records as $record)
+    @php
+        $total     = $record->recordMedications->count();
+        $completed = $record->recordMedications->where('is_completed', true)->count();
+        $allDone   = $total > 0 && $total === $completed; // 全部○か？
+        $bgClass   = $allDone ? 'bg-green-100' : 'bg-red-100';
+    @endphp
 
-          @php($count = $record->recordMedications->count())
-          <ul class="list-disc pl-6 text-sm mt-1">
-            @foreach ($record->recordMedications->take(3) as $rm)
-              <li>{{ $rm->medication->medication_name ?? '—' }}</li>
-            @endforeach
-            @if($count > 3)
-              <li>…ほか {{ $count - 3 }} 件</li>
+    <div class="border rounded p-4 mb-4 {{ $bgClass }}">
+        <h3 class="font-bold text-lg">
+            {{ $record->taken_at->format('Y-m-d H:i') }}
+            ／ {{ optional($record->timingTag)->timing_name ?? '—' }}
+            @if($allDone)
+                <span class="text-green-600 font-bold ml-2">（全服用完了）</span>
+            @else
+                <span class="text-red-600 font-bold ml-2">（未完了）</span>
             @endif
-          </ul>
+        </h3>
 
-          <div class="mt-2">
-            <a class="text-blue-600 underline" href="{{ route('records.show', $record) }}">詳細を見る</a>
-          </div>
-        </div>
-      @endforeach
+        <ul class="mt-2 list-disc pl-6">
+            @forelse($record->recordMedications as $rm)
+                @php
+                    $symbol = $rm->is_completed ? '○' : '×';
+                    $color  = $rm->is_completed ? 'text-green-600' : 'text-red-600';
+                @endphp
+                <li>
+                    <span class="{{ $color }} font-bold">{{ $symbol }}</span>
+                    {{ optional($rm->medication)->medication_name ?? '—' }}
+                    @if($rm->taken_dosage)
+                        <span class="text-gray-500">（{{ $rm->taken_dosage }}）</span>
+                    @endif
+                </li>
+            @empty
+                <li class="text-gray-500">登録された内服薬はありません</li>
+            @endforelse
+        </ul>
+    </div>
+@endforeach
+
     </div>
 
     <div class="mt-4">{{ $records->links() }}</div>
