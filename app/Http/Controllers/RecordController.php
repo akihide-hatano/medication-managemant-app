@@ -2,199 +2,176 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Medication;
 use App\Models\Record;
-use App\Models\TimingTag;
 use App\Models\RecordMedication;
+use App\Models\Medication;
+use App\Models\TimingTag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class RecordController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * 一覧
      */
     public function index()
     {
         $records = Record::with(['recordMedications.medication','timingTag'])
-            ->where('user_id', Auth::id())   // ← ここがポイント
+            ->where('user_id', Auth::id())
             ->orderByDesc('taken_at')
             ->paginate(20);
+
         return view('records.index', compact('records'));
     }
 
+    /**
+     * 作成フォーム
+     * （タイミングと薬の候補を渡す）
+     */
     public function create()
     {
-        $timingTags = TimingTag::orderBy('timing_name')
-                        ->get(['timing_tag_id','timing_name','base_time']);
+        $timingTags  = TimingTag::orderBy('timing_name')->get(['timing_tag_id','timing_name','base_time']);
+        $medications = Medication::orderBy('medication_name')->get(['medication_id','medication_name']);
 
-        $medications = Medication::orderBy('medication_name')
-                        ->get(['medication_id','medication_name']);
-
-        return view('records.create',compact('timingTags','medications'));
-    }
-
-/** 保存：親＋子を一括作成 */
-    public function store(Request $request)
-    {
-        $data = $request->validate(
-            [
-                'taken_date'     => ['required','date_format:Y-m-d','before_or_equal:today'],
-                'timing_tag_id'  => ['required','integer','exists:timing_tags,timing_tag_id'],
-
-                // 子（薬）配列：最低1件は選択させたい場合は required|array に
-                'medications'            => ['nullable','array'],
-                'medications.*.id'       => ['required','integer','exists:medications,medication_id'],
-                'medications.*.dosage'   => ['nullable','string','max:255'],
-                'medications.*.done'     => ['nullable','boolean'], // チェック無しなら来ない
-            ],
-            [],
-            ['taken_date'=>'日付','timing_tag_id'=>'タイミング','medications'=>'内服薬']
-        );
-
-        $tag = TimingTag::findOrFail($data['timing_tag_id']);
-        $base = $tag->base_time ?: '09:00:00';
-        $takenAt = Carbon::parse($data['taken_date'].' '.$base);
-
-        return DB::transaction(function () use ($data, $takenAt) {
-
-            // 同一ユーザ×同日×同タイミング の重複を避ける
-            $record = Record::firstOrCreate(
-                [
-                    'user_id'       => Auth::id(),
-                    'timing_tag_id' => (int)$data['timing_tag_id'],
-                    'taken_at'      => $takenAt, // 日付＋基準時刻
-                ],
-                []
-            );
-
-            // 子明細（薬）を一括作成（重複を除外）
-            $items = collect($data['medications'] ?? [])
-                ->unique(fn ($m) => (int)$m['id']) // 同じ薬の重複選択を除外
-                ->map(function ($m) use ($record) {
-                    return [
-                        'record_id'        => $record->record_id,
-                        'medication_id'    => (int)$m['id'],
-                        'taken_dosage'     => $m['dosage'] ?? null,
-                        'is_completed'     => (bool)($m['done'] ?? false),
-                        'reason_not_taken' => null,
-                        'created_at'       => now(),
-                        'updated_at'       => now(),
-                    ];
-                })
-                ->values()
-                ->all();
-
-            if (!empty($items)) {
-                // 既に同じ薬が入っていないかチェックしてから差分だけ入れる
-                $existingIds = RecordMedication::where('record_id', $record->record_id)
-                    ->pluck('medication_id')->all();
-
-                $toInsert = array_values(array_filter($items, fn($row) =>
-                    !in_array($row['medication_id'], $existingIds, true)
-                ));
-
-                if ($toInsert) {
-                    RecordMedication::insert($toInsert);
-                }
-            }
-
-            return redirect()
-                ->route('records.show', $record)
-                ->with('ok','記録を作成し、選択した内服薬を登録しました。');
-        });
+        return view('records.create', compact('timingTags','medications'));
     }
 
     /**
-     * Display the specified resource.
+     * 親（Record）＋ 子（RecordMedication[]）を一括保存
+     * フロントはネスト配列：
+     * medications[0][medication_id], [taken_dosage], [is_completed], [reason_not_taken]
+     */
+public function store(Request $request)
+{
+    // まずは何が飛んできてるかを見たい時はこれ
+    // dd($request->all());
+
+    // フォーム実態に合わせた検証（medications は数値IDの配列）
+    $data = $request->validate(
+        [
+            'taken_date'    => ['required','date_format:Y-m-d','before_or_equal:today'],
+            'timing_tag_id' => ['required','integer','exists:timing_tags,timing_tag_id'],
+
+            'medications'   => ['required','array','min:1'],
+            'medications.*' => ['integer','exists:medications,medication_id'],
+
+            'dosages'       => ['nullable','array'],
+            'dosages.*'     => ['nullable','string','max:255'],
+
+            'done'          => ['nullable','array'],
+            'done.*'        => ['nullable','in:1'], // チェックされてたら "1"
+        ],
+        [],
+        ['taken_date'=>'日付','timing_tag_id'=>'タイミング','medications'=>'内服薬']
+    );
+
+    $tag      = TimingTag::findOrFail($data['timing_tag_id']);
+    $baseTime = $tag->base_time ?: '09:00:00';
+    $takenAt  = Carbon::parse($data['taken_date'].' '.$baseTime);
+
+    return DB::transaction(function () use ($data, $takenAt) {
+        // 親を作成 or 取得
+        $record = Record::firstOrCreate([
+            'user_id'       => Auth::id(),
+            'timing_tag_id' => (int)$data['timing_tag_id'],
+            'taken_at'      => $takenAt,
+        ]);
+
+        // 子を upsert（同じ薬は上書き）
+        $dosages = $data['dosages'] ?? [];
+        $done    = $data['done'] ?? [];
+
+        foreach ($data['medications'] as $mid) {
+            $mid = (int)$mid;
+
+            RecordMedication::updateOrCreate(
+                [
+                    'record_id'     => $record->record_id,
+                    'medication_id' => $mid,
+                ],
+                [
+                    'taken_dosage'     => $dosages[$mid] ?? null,
+                    'is_completed'     => isset($done[$mid]) && $done[$mid] === '1',
+                    'reason_not_taken' => null,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('records.show', $record)
+            ->with('ok','記録を作成し、選択した内服薬を登録しました。');
+    });
+}
+
+    /**
+     * 詳細
      */
     public function show(Record $record)
     {
-        //認証チェック
-        if( $record->user_id !== Auth::id()){
-            abort(403,'この記録にはアクセスできません');
-        }
+        // 認可
+        abort_unless($record->user_id === Auth::id(), 403, 'この記録にはアクセスできません');
 
-        //必要な関連をload
-        $record->load(['timingTag',
-                    'recordMedications.medication',
-                ]);
+        $record->load(['timingTag','recordMedications.medication']);
 
-        return view('records.show',compact('record'));
+        // 集計（全部○か？）
+        $total     = $record->recordMedications->count();
+        $completed = $record->recordMedications->where('is_completed', true)->count();
+        $allDone   = $total > 0 && $total === $completed;
+
+        return view('records.show', compact('record','total','completed','allDone'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * 編集フォーム（親だけ変更したい場合）
      */
     public function edit(Record $record)
     {
-        //認証チェック
-        if( $record->user_id !== Auth::id()){
-            abort(403,'この記録にはアクセスできません');
-        }
-        return view('records.edit',compact('record'));
+        abort_unless($record->user_id === Auth::id(), 403);
+
+        $record->load(['timingTag','recordMedications.medication']);
+
+        $timingTags = TimingTag::orderBy('timing_name')->get(['timing_tag_id','timing_name','base_time']);
+
+        return view('records.edit', compact('record','timingTags'));
     }
+
     /**
-     * Update the specified resource in storage.
+     * 親の更新（必要なら）
      */
     public function update(Request $request, Record $record)
     {
-        //認証チェック
-        if( $record->user_id !== Auth::id()){
-            abort(403,'この記録にはアクセスできません');
-        }
+        abort_unless($record->user_id === Auth::id(), 403);
 
         $data = $request->validate(
             [
-                'record_date' => ['required','date_format:Y-m-d','before_or_equal:today'],
-                'timing_id'   => ['required','integer','exists:timing_tags,timing_id'],
+                'taken_date'    => ['required','date_format:Y-m-d','before_or_equal:today'],
+                'timing_tag_id' => ['required','integer','exists:timing_tags,timing_tag_id'],
             ],
             [],
-            ['record_date'=>'日付','timing_id'=>'タイミング']
+            ['taken_date'=>'日付','timing_tag_id'=>'タイミング']
         );
 
-        // 自分の他レコードで同一(日付×タイミング)が無いか
-        $exist = Record::where('user_id',Auth::id())
-            ->where('record_date',$data['record_date'])
-            ->where('timing_id',$data['timing_id'])
-            ->where('record_id','!=',$record->record_id)
-            ->exists();
-
-        if($exist){
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'record_date'=>'同じ日付、タイミングの記録がすでにあります。'
-                ]);
-        }
-
+        $tag      = TimingTag::findOrFail($data['timing_tag_id']);
+        $baseTime = $tag->base_time ?: '09:00:00';
         $record->update([
-            'record_date' => $data['record_date'],
-            'timing_id'   => $data['timing_id'],
+            'timing_tag_id' => (int)$data['timing_tag_id'],
+            'taken_at'      => Carbon::parse($data['taken_date'].' '.$baseTime),
         ]);
 
-        return redirect()->route('records.show',$record)
-                ->with('ok','内服記録を更新しました');
-
+        return redirect()->route('records.show', $record)->with('ok','記録を更新しました。');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * 削除
      */
     public function destroy(Record $record)
     {
-        //認証チェック
-        if( $record->user_id !== Auth::id()){
-            abort(403,'この記録にはアクセスできません');
-        }
+        abort_unless($record->user_id === Auth::id(), 403);
 
         $record->delete();
 
-        return redirect()
-                ->route('records.index')
-                ->with('ok','内服記録を削除しました');
-
+        return redirect()->route('records.index')->with('ok','記録を削除しました。');
     }
 }

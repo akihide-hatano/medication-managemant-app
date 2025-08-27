@@ -1,70 +1,90 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold">内服記録を追加（まとめて登録）</h2>
-    </x-slot>
+  <x-slot name="header"><h2 class="text-xl font-semibold">記録の新規作成</h2></x-slot>
 
-    <div class="max-w-3xl mx-auto p-4 space-y-6">
-        <form method="POST" action="{{ route('records.store') }}" class="space-y-6">
-        @csrf
-    <div>
-        <label class="block text-sm font-medium">日付</label>
-        <input type="date" name="taken_date"
-                value="{{ old('taken_date', now()->toDateString()) }}"
-                class="mt-1 w-full border rounded px-3 py-2" required>
-        @error('taken_date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-    </div>
+  <div class="max-w-3xl mx-auto p-4" x-data="medForm()">
+    <form method="POST" action="{{ route('records.store') }}" class="space-y-6">
+      @csrf
 
-    <div>
-        <label class="block text-sm font-medium">タイミング</label>
-        <select name="timing_tag_id" class="mt-1 w-full border rounded px-3 py-2" required>
-            <option value="">選択してください</option>
-            @foreach($timingTags as $tag)
-            <option value="{{ $tag->timing_tag_id }}" @selected(old('timing_tag_id')==$tag->timing_tag_id)>
-                {{ $tag->timing_name }}
-                @if($tag->base_time)（{{ \Carbon\Carbon::parse($tag->base_time)->format('H:i') }}）@endif
-            </option>
-            @endforeach
-        </select>
-        @error('timing_tag_id') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-    </div>
-
-      <div>
-        <label class="block text-sm font-medium mb-2">内服薬（複数選択 可）</label>
-
-        <div class="space-y-2">
-          @foreach($medications as $m)
-            <div class="flex items-center gap-3 border rounded p-2">
-              <label class="inline-flex items-center gap-2 w-56">
-                <input type="checkbox" name="medications[{{ $loop->index }}][id]" value="{{ $m->medication_id }}">
-                <span>{{ $m->medication_name }}</span>
-              </label>
-
-              <input type="text" name="medications[{{ $loop->index }}][dosage]"
-                     class="border rounded px-2 py-1 w-40" placeholder="用量(任意)"
-                     value="{{ old("medications.$loop->index.dosage") }}">
-
-              <label class="inline-flex items-center gap-1">
-                <input type="checkbox" name="medications[{{ $loop->index }}][done]" value="1">
-                <span>完了</span>
-              </label>
-            </div>
-          @endforeach
+      {{-- 日付・タイミング --}}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">日付</label>
+          <input type="date" name="taken_date" value="{{ old('taken_date', now()->toDateString()) }}"
+                 class="w-full border rounded px-3 py-2">
+          @error('taken_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
 
-        @error('medications') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-        @foreach ($errors->get('medications.*.id') as $msgs)
-          @foreach ($msgs as $msg)
-            <p class="text-red-600 text-sm mt-1">{{ $msg }}</p>
-          @endforeach
-        @endforeach
+        <div>
+          <label class="block text-sm font-medium mb-1">タイミング</label>
+          <select name="timing_tag_id" class="w-full border rounded px-3 py-2">
+            @foreach($timingTags as $t)
+              <option value="{{ $t->timing_tag_id }}" @selected(old('timing_tag_id')==$t->timing_tag_id)>
+                {{ $t->timing_name }}
+              </option>
+            @endforeach
+          </select>
+          @error('timing_tag_id')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+        </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          登録する
-        </button>
-        <a href="{{ route('records.index') }}" class="text-gray-600 underline">一覧に戻る</a>
+      {{-- 薬を一括選択（複数） --}}
+      <div>
+        <label class="block text-sm font-medium mb-1">内服薬（複数選択可）</label>
+        <select name="medications[]" multiple size="8"
+                class="w-full border rounded px-3 py-2"
+                x-model="selected">
+          @foreach($medications as $m)
+            <option value="{{ $m->medication_id }}">
+              {{ $m->medication_name }}
+            </option>
+          @endforeach
+        </select>
+        @error('medications')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+        @error('medications.*')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+        <p class="text-xs text-gray-500 mt-1">Ctrl/⌘ を押しながらクリックで複数選択できます。</p>
+      </div>
+
+      {{-- 選んだ薬だけ詳細入力（用量／完了） --}}
+      <template x-if="selected.length">
+        <div class="border rounded p-4 space-y-3">
+          <h3 class="font-semibold">選択した薬の詳細</h3>
+
+          <template x-for="mid in selected" :key="mid">
+            <div class="grid sm:grid-cols-12 items-center gap-3">
+              <div class="sm:col-span-5">
+                <span class="font-medium" x-text="medName(mid)"></span>
+              </div>
+              <div class="sm:col-span-5">
+                <input class="w-full border rounded px-3 py-2"
+                       :name="`dosages[${mid}]`" placeholder="用量（任意）">
+              </div>
+              <label class="sm:col-span-2 inline-flex items-center gap-2">
+                <input type="checkbox" :name="`done[${mid}]`" value="1">
+                <span>服用完了</span>
+              </label>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <div class="pt-2">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">保存する</button>
       </div>
     </form>
   </div>
+
+  {{-- Alpine 初期化 --}}
+  <script>
+    function medForm() {
+      const names = {
+        @foreach($medications as $m)
+          {{ $m->medication_id }}: @json($m->medication_name),
+        @endforeach
+      };
+      return {
+        selected: @json(old('medications', [])),
+        medName(id){ return names[id] ?? `#${id}`; },
+      };
+    }
+  </script>
 </x-app-layout>

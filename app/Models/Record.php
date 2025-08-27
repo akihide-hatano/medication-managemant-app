@@ -16,6 +16,7 @@ class Record extends Model
     protected $fillable = [
     'user_id',
     'timing_id',
+    'taken_at',
     ];
 
     protected $casts = [
