@@ -40,12 +40,12 @@
                             @php
                                 $symbol = $rm->is_completed ? '○' : '×';
                                 $color = $rm->is_completed ? 'text-green-600' :'text-red-600';
-                             @endphp
+                            @endphp
                                 <li class="flex items-center">
-                                    <span class=" {{color}} font-bold mr-2">{{$symbol}}</span>
+                                    <span class=" {{$color}} font-bold mr-2">{{$symbol}}</span>
                                     <span>{{ optional($rm->medication)->medication_name ?? '-'}}</span>
                                     @if($rm->taken_dosage)
-                                    <span class="text-gray-500">{{$rm->taken_dosage}}</span>
+                                    <span class="text-gray-500 ml-2">{{$rm->taken_dosage}}</span>
                                     @endif
                                 </li>
                             @empty($rm)
