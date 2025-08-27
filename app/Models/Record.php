@@ -15,7 +15,7 @@ class Record extends Model
 
     protected $fillable = [
     'user_id',
-    'timing_id',
+    'timing_tag_id',
     'taken_at',
     ];
 
