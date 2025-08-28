@@ -123,5 +123,5 @@
       </div>
     </form>
   </div>
-
+  <script src="{{asset('js/records-create.js')}}"></script>
 </x-app-layout>
