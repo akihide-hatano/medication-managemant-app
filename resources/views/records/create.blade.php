@@ -109,6 +109,21 @@
           </div>
       </template>
 
+      <template id="reason-template">
+        <div class="mt-3">
+            <label class="block text-xs text-gray-600 mb-1">服用しなかった理由</label>
+            <select name="reason_not_taken" class="w-full border rounded px-3 py-2">
+              <option value="">選択してください</option>
+              <option value="飲み忘れ">飲み忘れ</option>
+              <option value="副作用が心配">副作用が心配</option>
+              <option value="医師の指示">医師の指示</option>
+              <option value="体調不良">体調不良</option>
+              <option value="その他">その他</option>
+            </select>
+        </div>
+      </template>
+
+
         {{-- フィールド単位のエラー表示（ワイルドカード） --}}
         @error('medications')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
         @error('medications.*.medication_id')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
