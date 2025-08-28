@@ -21,6 +21,7 @@ const template = document.getElementById('medication-template');
     function addRow() {
         const newRow = template.content.cloneNode(true);
         const rowCount = container.children.length;
+
         // name属性のインデックスを更新
         newRow.querySelector('select[name^="medications"]').name = `medications[${rowCount}][medication_id]`;
         newRow.querySelector('select[name^="dosages"]').name = `medications[${rowCount}][taken_dosage]`;
@@ -31,29 +32,29 @@ const template = document.getElementById('medication-template');
         removeButton.addEventListener('click', () => {
             container.removeChild(removeButton.closest('.medication-row'));
             updateRowIndexes();
-    });
+        });
 
-    //完了buttonにイベントリスナーを追加
-    const isCompletedCheckbox = newRow.querySelector('input[type="checkbox"]');
-    isCompletedCheckbox.addEventListener('change',()=>{
-        //理由を入力するコンテナを取得
-        const reasonContainer = newRow.querySelector('.reason-container');
+        // 完了buttonにイベントリスナーを追加
+        const isCompletedCheckbox = newRow.querySelector('input[type="checkbox"]');
+        isCompletedCheckbox.addEventListener('change', () => {
+            const reasonContainer = newRow.querySelector('.reason-container');
 
-        if(!isCompletedCheckbox.checekd){
-            //チェックされていなければ、理由の入力欄を表示
-            const reasonField = document.getElementById('reason-templete').content.cloneNode(true);
-            reasonContainer.appendChild(reasonField);
-        }else{
-            reasonContainer.innerHTML = '';
-        }
-    });
+            if (!isCompletedCheckbox.checked) {
+                const reasonField = document.getElementById('reason-template').content.cloneNode(true);
+                // 新しいドロップダウンのname属性を更新
+                reasonField.querySelector('select').name = `medications[${rowCount}][reason_not_taken]`;
 
-     // DOMに追加
-    container.appendChild(newRow);
+                reasonContainer.appendChild(reasonField);
+            } else {
+                reasonContainer.innerHTML = '';
+            }
+        });
 
+        // DOMに追加
+        container.appendChild(newRow);
     }
-// 初期行を追加
-addRow();
+    // 初期行を追加
+    addRow();
 
 // 「行を追加」ボタンにイベントリスナーを設定
 addButton.addEventListener('click', addRow);
