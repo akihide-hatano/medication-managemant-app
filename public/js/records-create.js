@@ -33,10 +33,25 @@ const template = document.getElementById('medication-template');
             updateRowIndexes();
     });
 
-        // DOMに追加
-        container.appendChild(newRow);
-    }
+    //完了buttonにイベントリスナーを追加
+    const isCompletedCheckbox = newRow.querySelector('input[type="checkbox"]');
+    isCompletedCheckbox.addEventListener('change',()=>{
+        //理由を入力するコンテナを取得
+        const reasonContainer = newRow.querySelector('.reason-container');
 
+        if(!isCompletedCheckbox.checekd){
+            //チェックされていなければ、理由の入力欄を表示
+            const reasonField = document.getElementById('reason-templete').content.cloneNode(true);
+            reasonContainer.appendChild(reasonField);
+        }else{
+            reasonContainer.innerHTML = '';
+        }
+    });
+
+     // DOMに追加
+    container.appendChild(newRow);
+
+    }
 // 初期行を追加
 addRow();
 
