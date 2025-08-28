@@ -55,8 +55,6 @@
           <div id="medication-container" class="space-y-3">
               {{-- ここにJavaScriptで生成された行が追加される --}}
           </div>
-
-          <div class="sm:col-span-12 reason-contaier"></div>
       </div>
 
       {{-- JavaScriptのテンプレートとして使うためのHTML --}}
@@ -94,11 +92,14 @@
                   <label class="inline-flex items-center gap-2">
                       <input type="checkbox"
                             class="rounded"
-                            name="done[0][is_completed]"
+                            name="medications[0][is_completed]"
                             value="1">
                       <span class="text-sm">完了</span>
                   </label>
               </div>
+
+              {{-- 理由のコンテナ --}}
+              <div class="sm:col-span-12 reason-container"></div>
 
               {{-- 行削除 --}}
               <div class="sm:col-span-12 text-right">
@@ -135,7 +136,7 @@
       <div class="pt-2 flex items-center gap-3">
         <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">保存する</button>
         <a href="{{ route('records.index') }}"
-           class="px-4 py-2 rounded border hover:bg-gray-50">キャンセル</a>
+          class="px-4 py-2 rounded border hover:bg-gray-50">キャンセル</a>
       </div>
     </form>
   </div>
