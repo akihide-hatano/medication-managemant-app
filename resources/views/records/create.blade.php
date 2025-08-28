@@ -3,8 +3,7 @@
     <h2 class="text-xl font-semibold">記録の新規作成</h2>
   </x-slot>
 
-  <div class="max-w-3xl mx-auto p-4"
-       x-data="medForm()">
+  <div class="max-w-3xl mx-auto p-4">
     {{-- 全体のエラー --}}
     @if ($errors->any())
       <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -56,6 +55,8 @@
           <div id="medication-container" class="space-y-3">
               {{-- ここにJavaScriptで生成された行が追加される --}}
           </div>
+
+          <div class="sm:col-span-12 reason-contaier"></div>
       </div>
 
       {{-- JavaScriptのテンプレートとして使うためのHTML --}}
