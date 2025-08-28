@@ -6,16 +6,15 @@ const template = document.getElementById('medication-template');
 /**
  * すべての行のインデックスを更新する関数
  */
-    function updateRowIndexes() {
+    function updateRowIndexes(){
         const rows = container.children;
-        for (let i = 0; i < rows.length; i++) {
+        for( let i = 0; i < rows.length; i++){
             const row = rows[i];
             row.querySelector('select[name^="medications"]').name = `medications[${i}][medication_id]`;
             row.querySelector('select[name^="dosages"]').name = `medications[${i}][taken_dosage]`;
             row.querySelector('input[type="checkbox"]').name = `medications[${i}][is_completed]`;
         }
     }
-
 /**
  * 新しい薬の行を追加する関数
  */
@@ -34,9 +33,9 @@ const template = document.getElementById('medication-template');
             updateRowIndexes();
     });
 
-    // DOMに追加
-    container.appendChild(newRow);
-}
+        // DOMに追加
+        container.appendChild(newRow);
+    }
 
 // 初期行を追加
 addRow();
