@@ -12,7 +12,7 @@ const reasonTpl = document.getElementById('reason-template'); // 新しいテン
         for(let i = 0; i < rows.length; i++){
             const row = rows[i];
             row.querySelector('select[name^="medications"]').name = `medications[${i}][medication_id]`;
-            row.querySelector('select[name^="dosages"]').name = `medications[${i}][taken_dosage]`;
+            row.querySelector('select[name^="medications"][name*="taken_dosage"]').name = `medications[${i}][taken_dosage]`; // ★ここを修正★
             row.querySelector('input[type="checkbox"]').name = `medications[${i}][is_completed]`;
         }
     }
@@ -26,7 +26,7 @@ const reasonTpl = document.getElementById('reason-template'); // 新しいテン
 
         // name属性のインデックスを更新（DOMに追加する前に実行）
         newRow.querySelector('select[name^="medications"]').name = `medications[${rowCount}][medication_id]`;
-        newRow.querySelector('select[name^="dosages"]').name = `medications[${rowCount}][taken_dosage]`;
+        newRow.querySelector('select[name*="taken_dosage"]').name = `medications[${rowCount}][taken_dosage]`; // ★ここを修正★
         newRow.querySelector('input[type="checkbox"]').name = `medications[${rowCount}][is_completed]`;
 
         // DOMに追加
@@ -57,7 +57,7 @@ const reasonTpl = document.getElementById('reason-template'); // 新しいテン
                 reasonContainer.innerHTML = '';
             }
         });
-        
+
         // 追加直後の初期インデックスを更新
         updateRowIndexes();
     }

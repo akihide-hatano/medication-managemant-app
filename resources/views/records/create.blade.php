@@ -77,7 +77,7 @@
               <div class="sm:col-span-4">
                   <label class="block text-xs text-gray-600 mb-1">服用量（任意）</label>
                   <select class="w-full border rounded px-3 py-2"
-                          name="dosages[0][taken_dosage]">
+                          name="medications[0][taken_dosage]">
                       <option value="">未指定</option>
                       <option value="1錠">1 錠</option>
                       <option value="2錠">2 錠</option>
@@ -93,7 +93,7 @@
                       <input type="checkbox"
                             class="rounded"
                             name="medications[0][is_completed]"
-                            value="1">
+                            value="1" checked>
                       <span class="text-sm">完了</span>
                   </label>
               </div>
