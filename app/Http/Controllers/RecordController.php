@@ -122,8 +122,11 @@ class RecordController extends Controller
         $record->load(['timingTag','recordMedications.medication']);
 
         $timingTags = TimingTag::orderBy('timing_name')->get(['timing_tag_id','timing_name','base_time']);
+        $medications = Medication::orderBy('medication_name')->get(['medication_id','medication_name']);
 
-        return view('records.edit', compact('record','timingTags'));
+    dd($timingTags,$medications);
+
+        return view('records.edit', compact('record','timingTags','medications'));
     }
 
     /**
