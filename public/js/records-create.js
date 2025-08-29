@@ -63,7 +63,7 @@ const reasonTpl = document.getElementById('reason-template'); // 新しいテン
     }
 
 // 初期行を追加
-    addRow();
+  addRow();
 
 // 「行を追加」ボタンにイベントリスナーを設定
     addButton.addEventListener('click', addRow);
