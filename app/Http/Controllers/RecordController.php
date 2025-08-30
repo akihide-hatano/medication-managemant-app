@@ -101,7 +101,6 @@ class RecordController extends Controller
     {
         // 認可
         abort_unless($record->user_id === Auth::id(), 403, 'この記録にはアクセスできません');
-
         $record->load(['timingTag','recordMedications.medication']);
 
         // 集計（全部○か？）
