@@ -51,15 +51,15 @@
                     id="add-medication-row"
                     class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
                 行を追加
-              </button>
+            </button>
             </div>
 
-              {{-- このコンテナに動的に行を追加 --}}
-              <div id="medication-container" class="space-y-3">
-              </div>
+            {{-- このコンテナに動的に行を追加 --}}
+            <div id="medication-container" class="space-y-3">
+            </div>
 
-              {{-- JavaScriptのテンプレートとして使うためのHTML --}}
-              <template id="medication-template">
+            {{-- JavaScriptのテンプレートとして使うためのHTML --}}
+            <template id="medication-template">
                 <div class="grid sm:grid-cols-12 gap-3 p-3 border rounded bg-gray-50 medication-row">
                     {{-- 薬の選択 --}}
                     <div class="sm:col-span-6">
