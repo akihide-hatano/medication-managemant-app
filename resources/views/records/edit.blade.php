@@ -89,6 +89,25 @@
                             <option value="5錠">5錠</option>
                         </select>
                     </div>
+
+                    {{-- 完了チェック --}}
+                    <div class="sm:col-span-2 flex items-end">
+                        <label class="inline-flex items-center gap-2">
+                            <input type="checkbox" class="rounded" name="medications[0][is_complete]" data-name="is_completed" value="1">
+                            <span class="text-sm">完了</span>
+                        </label>
+                    </div>
+
+                    {{-- 理由のコンテナ --}}
+                    <div class="sm:col-span-12 reason-contaier"></div>
+
+                    {{-- 行削除 --}}
+                    <div class="sm:col-span-12 text-right">
+                        <button type="button"
+                                class="text-sm text-red-600 hover:text-red-800 remove-row-btn">
+                            この行を削除
+                        </button>
+                    </div>
               </template>
           </div>
     </form>
