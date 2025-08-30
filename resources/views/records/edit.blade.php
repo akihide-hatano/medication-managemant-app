@@ -79,7 +79,7 @@
                     {{-- 内服量の選択 --}}
                     <div class="sm:col-span-4">
                         <label class="block text-xs text-gray-600 mb-1">服用量</label>
-                        <select name="medications[0][taken_dosage]" class="w-full border rounded px-3 py-2">
+                        <select name="medications[0][taken_dosage]" data-name="taken_dosage" class="w-full border rounded px-3 py-2">
                             <option value="">未設定</option>
                             <option value="1錠">1錠</option>
                             <option value="2錠">2錠</option>

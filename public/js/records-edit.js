@@ -7,19 +7,19 @@ const reasonTpl = document.getElementById('reason-template');
 /**
  * すべての行のインデックスを更新
  */
-function updateRowIndexes() {
-  const rows = container.querySelectorAll('.medication-row');
-  rows.forEach((row, i) => {
-    row.querySelectorAll('[data-name]').forEach((el) => {
-      const key = el.dataset.name;
-      el.name = `medications[${i}][${key}]`;
-    });
-    const reasonSel = row.querySelector('select[data-name="reason_not_taken"]');
-    if (reasonSel) {
-      reasonSel.name = `medications[${i}][reason_not_taken]`;
+    function updateRowIndexes() {
+      const rows = container.querySelectorAll('.medication-row');
+      rows.forEach((row, i) => {
+        row.querySelectorAll('[data-name]').forEach((el) => {
+          const key = el.dataset.name;
+          el.name = `medications[${i}][${key}]`;
+        });
+        const reasonSel = row.querySelector('select[data-name="reason_not_taken"]');
+        if (reasonSel) {
+          reasonSel.name = `medications[${i}][reason_not_taken]`;
+        }
+      });
     }
-  });
-}
 
 /**
  * 新しい薬の行を追加
@@ -27,21 +27,22 @@ function updateRowIndexes() {
  */
 function addRow(data = {}) {
   const frag = template.content.cloneNode(true);
-  
+
   // DOMに追加
   container.appendChild(frag);
-
   // 追加された“実体の行要素”を取得
   const row = container.lastElementChild;
 
-  // 既存データがあれば値を設定
-  if (data.medication_id) {
-    row.querySelector('select[data-name="medication_id"]').value = data.medication_id;
-  }
-  if (data.taken_dosage) {
-    row.querySelector('select[data-name="taken_dosage"]').value = data.taken_dosage;
-  }
-  
+// 既存データがあれば値を設定
+if (data.medication_id) {
+  // `data-name`で要素を取得
+  row.querySelector('select[data-name="medication_id"]').value = data.medication_id;
+}
+if (data.taken_dosage) {
+  // `data-name`で要素を取得
+  row.querySelector('select[data-name="taken_dosage"]').value = data.taken_dosage;
+}
+
   // `is_completed`のチェックと`reason_not_taken`の表示
   const isCompletedCheckbox = row.querySelector('input[data-name="is_completed"]');
   if (data.is_completed) {
