@@ -109,5 +109,31 @@
                     </div>
                 </div>
             </template>
+
+            <template id="reason-template">
+                <div class="mt-3">
+                    <label class="block text-xs text-gray-600 mb-1">服用しなかった理由</label>
+                    <section name="medications[0][reason_not_taken]" data-name="reason_not_taken" class="w-full border rounded px-3 py-2">
+                        <option value="">選択してください</option>
+                        <option value="">選択してください</option>
+                        <option value="飲み忘れ">飲み忘れ</option>
+                        <option value="副作用が心配">副作用が心配</option>
+                        <option value="医師の指示">医師の指示</option>
+                        <option value="体調不良">体調不良</option>
+                        <option value="その他">その他</option>
+                    </section>
+                </div>
+            </template>
+
+            {{-- フィールド単位のエラー表示（ワイルドカード） --}}
+            @error('medications')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+            @error('medications.*.medication_id')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+            @error('medications.*.taken_dosage')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+            @error('medications.*.is_completed')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+
+            <div class="pt-2 flex items-center gap-3">
+                <button class="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">保存する</button>
+                <a href="{{route('records.index')}}" class="px-4 py-2 border text-white bg-gray-900 hover:bg-gray-400">キャンセル</a>
+            </div>
     </form>
 </x-app-layout>
