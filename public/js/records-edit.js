@@ -18,7 +18,7 @@ const reasonTpl = document.getElementById('reason-template');
       for( let j = 0; j < elements.length; j++ ){
         const element = elements[j];
         const key = element.dataset.name;
-        element.name = `medications[${j}][${key}]`
+        element.name = `medications[${i}][${key}]`
       }
     }
   }
@@ -38,9 +38,9 @@ const reasonTpl = document.getElementById('reason-template');
       }
 
       //内服量のdataを設定
-      if(data.taken_dosasge){
+      if(data.taken_dosage){
         const dosageSelect = row.querySelector('[data-name="taken_dosage"]');
-        dosageSelect.value = data.taken_dosasge;
+        dosageSelect.value = data.taken_dosage;
       }
 
       //`is_completed`のチェックと`reason_not_taken`の表示
@@ -49,7 +49,7 @@ const reasonTpl = document.getElementById('reason-template');
         isCompletedCheckbox.checked = true;
       } else if(data.reason_not_taken){
         const reasonContainer = row.querySelector('.reason-container');
-        const reasonFrag= reasonTpl.contentEditable.cloneNode(true);
+        const reasonFrag= reasonTpl.content.cloneNode(true);
         const reasonSelect = reasonFrag.querySelector('[data-name="reason_not_taken"]');
         reasonContainer.appendChild(reasonFrag);
         reasonSelect.value = data.reason_not_taken;
