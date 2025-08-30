@@ -64,5 +64,37 @@ const reasonTpl = document.getElementById('reason-template');
         });
       }
 
-      
+      //完了チェックのトグルで理由フォームを表示/非表示
+      isCompletedCheckbox.addEventListener('change',(e)=>{
+        const reasonContainer = row.querySelector('.reason-container');
+        if(!e.target.checked){
+          if(!row.querySelector('[data-name="reason_not_taken"]')){
+              reasonContainer.appendChild(reasonTpl.contentEditable.cloneNode(true));
+          }else{
+              reasonContainer.innerHTML = '';
+          }
+          updateRowIndexes();
+        }
+      });
+
+      //DOMに追加
+      container.appendChild(row);
+      //追加直後のインデックスを更新
+      updateRowIndexes();
     }
+
+    //既存データがあれば、for文でそれそれに行を生成
+    if(existiongMedications && existiongMedications.length > 0 ){
+      //データの数を繰り返す
+      for( let i=0; i < existiongMedications.length; i++){
+          const medicationData = existiongMedications[i];
+          addRow(medicationData);
+        }
+      }else{
+      //データがなければ、、空の行を1つ追加
+      addRow();
+      }
+    // 「行を追加」ボタンにイベントリスナーを設定
+    addButton.addEventListener('click', function() {
+      addRow();
+    });
