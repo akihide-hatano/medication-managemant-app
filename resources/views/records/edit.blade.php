@@ -53,6 +53,14 @@
                     class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
                 行を追加
               </button>
+
+              {{-- このコンテナに動的に行を追加 --}}
+              <div id="medication-container" class="space-y-3">
+              </div>
+
+              {{-- JavaScriptのテンプレートとして使うためのHTML --}}
+              <template id="medication-templete">
+              </template>
           </div>
     </form>
 </x-app-layout>
