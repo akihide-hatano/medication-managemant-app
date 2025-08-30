@@ -60,7 +60,7 @@ class RecordController extends Controller
             'medications.*.taken_dosage' => '服用量',
             'medications.*.is_completed' => '完了フラグ',
         ]);
-        
+
         $tag      = TimingTag::findOrFail($data['timing_tag_id']);
         $baseTime = $tag->base_time ?: '09:00:00';
         $takenAt  = Carbon::parse($data['taken_date'] . ' ' . $baseTime);
@@ -131,27 +131,43 @@ class RecordController extends Controller
     /**
      * 親の更新（必要なら）
      */
-    public function update(Request $request, Record $record)
-    {
-        abort_unless($record->user_id === Auth::id(), 403);
+public function update(Request $request, Record $record)
+{
+    abort_unless($record->user_id === Auth::id(), 403);
 
-        $data = $request->validate(
-            [
-                'taken_date'    => ['required','date_format:Y-m-d','before_or_equal:today'],
-                'timing_tag_id' => ['required','integer','exists:timing_tags,timing_tag_id'],
-            ],
-            [],
-            ['taken_date'=>'日付','timing_tag_id'=>'タイミング']
-        );
+    $data = $request->validate(
+        [
+            'taken_date'    => ['required','date_format:Y-m-d','before_or_equal:today'],
+            'timing_tag_id' => ['required','integer','exists:timing_tags,timing_tag_id'],
+            'medications' => ['array', 'nullable'],
+            'medications.*.medication_id' => ['required', 'integer', 'exists:medications,medication_id'],
+            'medications.*.taken_dosage'  => ['nullable', 'string', 'max:255'],
+            'medications.*.is_completed'  => ['nullable', 'boolean'],
+            'medications.*.reason_not_taken' => ['nullable', 'string', 'max:255'],
+        ],
+        [],
+        ['taken_date'=>'日付','timing_tag_id'=>'タイミング']
+    );
 
-        $tag      = TimingTag::findOrFail($data['timing_tag_id']);
-        $baseTime = $tag->base_time ?: '09:00:00';
-        $record->update([
-            'timing_tag_id' => (int)$data['timing_tag_id'],
-            'taken_at'      => Carbon::parse($data['taken_date'].' '.$baseTime),
-        ]);
+    // 親モデルの更新
+    $tag      = TimingTag::findOrFail($data['timing_tag_id']);
+    $baseTime = $tag->base_time ?: '09:00:00';
+    $record->update([
+        'timing_tag_id' => (int)$data['timing_tag_id'],
+        'taken_at'      => Carbon::parse($data['taken_date'].' '.$baseTime),
+    ]);
 
-        return redirect()->route('records.show', $record)->with('ok','記録を更新しました。');
+    // 子モデル（内服薬）の更新
+    // 1. 既存の関連データをすべて削除
+    $record->recordMedications()->delete();
+
+    // 2. バリデーション済みのデータから新しいデータを保存
+    if (isset($data['medications'])) {
+        foreach ($data['medications'] as $medicationData) {
+            $record->recordMedications()->create($medicationData);
+        }
+    }
+    return redirect()->route('records.show', $record)->with('ok','記録を更新しました。');
     }
 
     /**
