@@ -60,6 +60,35 @@
 
               {{-- JavaScriptのテンプレートとして使うためのHTML --}}
               <template id="medication-templete">
+                <div class="grid sm:grid-cols-12 gap-3 p-3 border rounded bg-gray-50 medication-row">
+                    {{-- 薬の選択 --}}
+                    <div class="sm:col-span-6">
+                        <label class="block text-xs text-gray-600 mb-1">薬
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <select class="w-full borer rounded px-3 py-2" name="medication[0][medication_id]" data-name="medication-id" required>
+                            <option value="">選択してください
+                                @foreach ($medications as $m)
+                                    <option value="{{$m->medication_id}}">
+                                        {{ $m->medication_name}}
+                                    </option>
+                                @endforeach
+                            </option>
+                        </select>
+                    </div>
+
+                    {{-- 内服量の選択 --}}
+                    <div class="sm:col-span-4">
+                        <label class="block text-xs text-gray-600 mb-1">服用量</label>
+                        <select name="medications[0][taken_dosage]" class="w-full border rounded px-3 py-2">
+                            <option value="">未設定</option>
+                            <option value="1錠">1錠</option>
+                            <option value="2錠">2錠</option>
+                            <option value="3錠">3錠</option>
+                            <option value="4錠">4錠</option>
+                            <option value="5錠">5錠</option>
+                        </select>
+                    </div>
               </template>
           </div>
     </form>
