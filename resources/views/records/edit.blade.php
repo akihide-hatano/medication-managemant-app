@@ -14,7 +14,6 @@
                 </ul>
             </div>
         @endif
-    </div>
 
     <form method="POST" action="{{route('records.update',$record)}}" class="space-y-6">
         @csrf
@@ -53,6 +52,7 @@
                     class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
                 行を追加
               </button>
+            </div>
 
               {{-- このコンテナに動的に行を追加 --}}
               <div id="medication-container" class="space-y-3">
@@ -66,7 +66,7 @@
                         <label class="block text-xs text-gray-600 mb-1">薬
                             <span class="text-red-500">*</span>
                         </label>
-                        <select class="w-full border rounded px-3 py-2" name="medication[0][medication_id]" data-name="medication-id" required>
+                        <select class="w-full border rounded px-3 py-2" name="medication[0][medication_id]" data-name="medication_id" required>
                             <option value="">選択してください</option>
                                 @foreach ($medications as $m)
                                     <option value="{{$m->medication_id}}">
@@ -92,7 +92,7 @@
                     {{-- 完了チェック --}}
                     <div class="sm:col-span-2 flex items-end">
                         <label class="inline-flex items-center gap-2">
-                            <input type="checkbox" class="rounded" name="medications[0][is_complete]" data-name="is_completed" value="1">
+                            <input type="checkbox" class="rounded" name="medications[0][is_completed]" data-name="is_completed" value="1">
                             <span class="text-sm">完了</span>
                         </label>
                     </div>
@@ -113,15 +113,14 @@
             <template id="reason-template">
                 <div class="mt-3">
                     <label class="block text-xs text-gray-600 mb-1">服用しなかった理由</label>
-                    <section name="medications[0][reason_not_taken]" data-name="reason_not_taken" class="w-full border rounded px-3 py-2">
-                        <option value="">選択してください</option>
+                    <select name="medications[0][reason_not_taken]" data-name="reason_not_taken" class="w-full border rounded px-3 py-2">
                         <option value="">選択してください</option>
                         <option value="飲み忘れ">飲み忘れ</option>
                         <option value="副作用が心配">副作用が心配</option>
                         <option value="医師の指示">医師の指示</option>
                         <option value="体調不良">体調不良</option>
                         <option value="その他">その他</option>
-                    </section>
+                    </select>
                 </div>
             </template>
 
@@ -135,5 +134,13 @@
                 <button class="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">保存する</button>
                 <a href="{{route('records.index')}}" class="px-4 py-2 border text-white bg-gray-900 hover:bg-gray-400">キャンセル</a>
             </div>
-    </form>
+        </form>
+    </div>
+
+    {{-- PHPからJSONに変更したdataをJavaScipt変数として定義 --}}
+    <script>
+        const existingMedications = @json($record->recordMedications);
+    </script>
+    {{-- JavaScriptファイルを読み込む --}}
+    <script src="{{asset('js/records-edit.js')}}"></script>
 </x-app-layout>
