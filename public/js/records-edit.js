@@ -28,7 +28,7 @@ const reasonTpl = document.getElementById('reason-template');
  * @param {Object} [data] - 既存のデータ（編集時のみ）
  */
     function addRow(data=[{}]){
-      const frag = template.contentEditable.cloneNode(true);
+      const frag = template.content.cloneNode(true);
       const row = frag.firstElementChild;
 
       //内服薬のdataがあれば値を設定
@@ -84,10 +84,10 @@ const reasonTpl = document.getElementById('reason-template');
     }
 
     //既存データがあれば、for文でそれそれに行を生成
-    if(existiongMedications && existiongMedications.length > 0 ){
+    if(existingMedications && existingMedications.length > 0 ){
       //データの数を繰り返す
-      for( let i=0; i < existiongMedications.length; i++){
-          const medicationData = existiongMedications[i];
+      for( let i=0; i < existingMedications.length; i++){
+          const medicationData = existingMedications[i];
           addRow(medicationData);
         }
       }else{
