@@ -7,7 +7,7 @@
         {{-- 全体のエラー --}}
         @if( $errors->any())
             <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                <ul class=""list-none>
+                <ul class="list-none">
                     @foreach( $errors->all() as $e)
                         <li>{{ $e }}</li>
                     @endforeach
@@ -16,7 +16,7 @@
         @endif
     </div>
 
-    <form method="POST" action="{{ route('records.update',$record)}}" class="space-y-6">
+    <form method="POST" action="{{route('records.update',$record)}}" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -24,7 +24,7 @@
             {{-- 日付・タイミング --}}
             <div>
                 <label class="block text-sm font-medium mb-1">日付</label>
-                <input type="date" name="taken_date" value="{{ old('taken_date',$record->taken_at->toDateString() )}}"
+                <input type="date" name="taken_date" value="{{old('taken_date',$record->taken_at->toDateString())}}"
                     class="w-full border rounded px-3 py-2 ">
             </div>
 
@@ -59,21 +59,20 @@
               </div>
 
               {{-- JavaScriptのテンプレートとして使うためのHTML --}}
-              <template id="medication-templete">
+              <template id="medication-template">
                 <div class="grid sm:grid-cols-12 gap-3 p-3 border rounded bg-gray-50 medication-row">
                     {{-- 薬の選択 --}}
                     <div class="sm:col-span-6">
                         <label class="block text-xs text-gray-600 mb-1">薬
                             <span class="text-red-500">*</span>
                         </label>
-                        <select class="w-full borer rounded px-3 py-2" name="medication[0][medication_id]" data-name="medication-id" required>
-                            <option value="">選択してください
+                        <select class="w-full border rounded px-3 py-2" name="medication[0][medication_id]" data-name="medication-id" required>
+                            <option value="">選択してください</option>
                                 @foreach ($medications as $m)
                                     <option value="{{$m->medication_id}}">
                                         {{ $m->medication_name}}
                                     </option>
                                 @endforeach
-                            </option>
                         </select>
                     </div>
 
@@ -99,7 +98,7 @@
                     </div>
 
                     {{-- 理由のコンテナ --}}
-                    <div class="sm:col-span-12 reason-contaier"></div>
+                    <div class="sm:col-span-12 reason-container"></div>
 
                     {{-- 行削除 --}}
                     <div class="sm:col-span-12 text-right">
@@ -108,7 +107,7 @@
                             この行を削除
                         </button>
                     </div>
-              </template>
-          </div>
+                </div>
+            </template>
     </form>
 </x-app-layout>
