@@ -8,17 +8,61 @@ const reasonTpl = document.getElementById('reason-template');
  * すべての行のインデックスを更新する関数
  */
 
-function updateRowIndexes(){
-  const rows = container.querySelectorAll('.medication-row');
+  function updateRowIndexes(){
+    const rows = container.querySelectorAll('.medication-row');
 
-  for( let i =0; i < rows.length; i++ ){
-    const row = rows[i];
-    const elements = row.querySelectorAll('[data-name]');
+    for( let i =0; i < rows.length; i++ ){
+      const row = rows[i];
+      const elements = row.querySelectorAll('[data-name]');
 
-    for( let j = 0; j < elements.length; j++ ){
-      const element = elements[j];
-      const key = element.dataset.name;
-      element.name = `medications[${j}][${key}]`
+      for( let j = 0; j < elements.length; j++ ){
+        const element = elements[j];
+        const key = element.dataset.name;
+        element.name = `medications[${j}][${key}]`
+      }
     }
   }
-}
+
+/**
+ * 新しい薬の行を追加する関数
+ * @param {Object} [data] - 既存のデータ（編集時のみ）
+ */
+    function addRow(data=[{}]){
+      const frag = template.contentEditable.cloneNode(true);
+      const row = frag.firstElementChild;
+
+      //内服薬のdataがあれば値を設定
+      if(data.medication_id){
+        const medicationSelect = row.querySelector('[data-name="medication_id"]');
+        medicationSelect.value = data.medication_id;
+      }
+
+      //内服量のdataを設定
+      if(data.taken_dosasge){
+        const dosageSelect = row.querySelector('[data-name="taken_dosage"]');
+        dosageSelect.value = data.taken_dosasge;
+      }
+
+      //`is_completed`のチェックと`reason_not_taken`の表示
+      const isCompletedCheckbox = row.querySelector('[data-name="is_completed"]');
+      if(data.is_completed){
+        isCompletedCheckbox.checked = true;
+      } else if(data.reason_not_taken){
+        const reasonContainer = row.querySelector('.reason-container');
+        const reasonFrag= reasonTpl.contentEditable.cloneNode(true);
+        const reasonSelect = reasonFrag.querySelector('[data-name="reason_not_taken"]');
+        reasonContainer.appendChild(reasonFrag);
+        reasonSelect.value = data.reason_not_taken;
+      }
+
+      //この行を削除のボタンにイベントリスナーを追加
+      const removeButton = row.querySelector('.remove-row-btn');
+      if(removeButton){
+        removeButton.addEventListener('click',()=>{
+          row.remove();
+          updateRowIndexes();
+        });
+      }
+
+      
+    }
