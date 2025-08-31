@@ -4,30 +4,23 @@
     </x-slot>
 
     <div class="container mx-auto p-4 max-w-6xl">
-        {{-- 絞り込みフォームを月と週に修正 --}}
+        {{-- 絞り込みフォームをカレンダーピッカーに修正 --}}
         <form action="{{ route('records.index') }}" method="GET" class="mb-6 flex space-x-4 items-end">
             <div>
-                <label for="filter_month" class="block text-sm font-medium text-gray-700">月で絞り込み</label>
-                <select name="filter_month" id="filter_month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    <option value="">すべて</option>
-                    @for ($i = 1; $i <= 12; $i++)
-                        <option value="{{ $i }}" @if(request('filter_month') == $i) selected @endif>
-                            {{ $i }}月
-                        </option>
-                    @endfor
-                </select>
+                <label for="filter_date" class="block text-sm font-medium text-gray-700">日付で絞り込み</label>
+                <input type="week" name="filter_date" id="filter_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" value="{{ request('filter_date') }}">
             </div>
+
+            {{-- 新しい「完了状況」のドロップダウンを追加 --}}
             <div>
-                <label for="filter_week" class="block text-sm font-medium text-gray-700">週で絞り込み</label>
-                <select name="filter_week" id="filter_week" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                <label for="filter_completion" class="block text-sm font-medium text-gray-700">完了状況</label>
+                <select name="filter_completion" id="filter_completion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     <option value="">すべて</option>
-                    @for ($i = 1; $i <= 5; $i++)
-                        <option value="{{ $i }}" @if(request('filter_week') == $i) selected @endif>
-                            {{ $i }}週
-                        </option>
-                    @endfor
+                    <option value="completed" @if(request('filter_completion') === 'completed') selected @endif>完了</option>
+                    <option value="incomplete" @if(request('filter_completion') === 'incomplete') selected @endif>未完了</option>
                 </select>
             </div>
+            
             <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 絞り込む
             </button>

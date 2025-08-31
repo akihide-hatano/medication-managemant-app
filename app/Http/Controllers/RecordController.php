@@ -16,35 +16,34 @@ class RecordController extends Controller
     /**
      * 一覧
      */
- public function index(Request $request){
-        $query = Record::with('recordMedications','timingTag');
-
-        // 月で絞り込み
-        if ($request->filled('filter_month')) {
-            $query->whereMonth('taken_at', $request->input('filter_month'));
-        }
+    public function index(Request $request)
+    {
+        $query = Record::query()->with('recordMedications','timingTag');
 
         // 週で絞り込み
-        if ($request->filled('filter_week')) {
-            // 月の絞り込みも考慮して週の計算を行う
-            $month = $request->input('filter_month') ? (int)$request->input('filter_month') : now()->month;
-            $year = now()->year;
-
-            // まず、指定された月の初日を取得
-            $date = Carbon::createFromDate($year, $month, 1);
-
-            // 週の開始日を計算
-            // setISODate()は使わず、指定された週の初日を計算
-            // 例: 8月の4週目
-            // 8月の1日を基準に、4週目を計算する
-            $startOfWeek = $date->startOfMonth()->addWeeks((int)$request->input('filter_week') - 1)->startOfWeek(Carbon::SUNDAY);
-            $endOfWeek = $startOfWeek->copy()->endOfWeek(Carbon::SATURDAY);
-
+        if ($request->filled('filter_date')) {
+            [$year, $week] = explode('-W', $request->input('filter_date'));
+            $startOfWeek = Carbon::now()->setISODate((int)$year, (int)$week)->startOfWeek();
+            $endOfWeek = $startOfWeek->copy()->endOfWeek();
             $query->whereBetween('taken_at', [$startOfWeek, $endOfWeek]);
         }
-        // 絞り込み条件を適用した上で、ページネーションを行う
-        $records = $query->latest('taken_at')->paginate(10);
 
+        // 完了状況で絞り込み
+        if ($request->filled('filter_completion')) {
+            if ($request->input('filter_completion') === 'completed') {
+                // 未完了の薬が一つもないレコードを絞り込む
+                $query->whereDoesntHave('recordMedications', function ($subQuery) {
+                    $subQuery->where('is_completed', false);
+                });
+            } elseif ($request->input('filter_completion') === 'incomplete') {
+                // 一つでも未完了の薬があるレコードを絞り込む
+                $query->whereHas('recordMedications', function ($subQuery) {
+                    $subQuery->where('is_completed', false);
+                });
+            }
+        }
+
+        $records = $query->latest('taken_at')->paginate(10);
         return view('records.index', compact('records'));
     }
 
