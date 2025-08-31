@@ -16,8 +16,7 @@ class RecordController extends Controller
     /**
      * 一覧
      */
- public function index(Request $request)
-    {
+ public function index(Request $request){
         $query = Record::with('recordMedications','timingTag');
 
         // 月で絞り込み

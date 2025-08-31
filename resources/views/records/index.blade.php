@@ -82,7 +82,7 @@
                 @endforeach
             </div>
             <div class="mt-6">
-                {{ $records->links() }}
+                {{ $records->appends(request()->query())->links() }}
             </div>
         @endif
         <div class="mt-6">
