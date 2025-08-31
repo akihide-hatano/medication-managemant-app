@@ -1,9 +1,39 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl">内服薬記録一覧</h2>
+        <h2 class="text-xl font-serif">内服薬記録一覧</h2>
     </x-slot>
 
     <div class="container mx-auto p-4 max-w-6xl">
+        {{-- 絞り込みフォームを月と週に修正 --}}
+        <form action="{{ route('records.index') }}" method="GET" class="mb-6 flex space-x-4 items-end">
+            <div>
+                <label for="filter_month" class="block text-sm font-medium text-gray-700">月で絞り込み</label>
+                <select name="filter_month" id="filter_month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <option value="">すべて</option>
+                    @for ($i = 1; $i <= 12; $i++)
+                        <option value="{{ $i }}" @if(request('filter_month') == $i) selected @endif>
+                            {{ $i }}月
+                        </option>
+                    @endfor
+                </select>
+            </div>
+            <div>
+                <label for="filter_week" class="block text-sm font-medium text-gray-700">週で絞り込み</label>
+                <select name="filter_week" id="filter_week" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <option value="">すべて</option>
+                    @for ($i = 1; $i <= 5; $i++)
+                        <option value="{{ $i }}" @if(request('filter_week') == $i) selected @endif>
+                            {{ $i }}週
+                        </option>
+                    @endfor
+                </select>
+            </div>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                絞り込む
+            </button>
+        </form>
+
+        {{-- 既存のカード表示部分 --}}
         @if ($records->isEmpty())
             <p class="text-red-700">まだ記録はありません。</p>
         @else
@@ -15,14 +45,12 @@
                         $allDone = $total > 0 && $total === $completed;
                         $bgClass = $allDone ? 'bg-green-100' : 'bg-red-100';
                     @endphp
-                    {{--　内服薬薬のカード式 --}}
                     <a href="{{ route('records.show', $record) }}" class="block h-full">
                         <div class="border rounded-lg p-4 shadow hover:shadow-lg transition {{ $bgClass }} h-full">
                             <h3 class="font-bold text-lg mb-2">
                                 {{ $record->taken_at->format('Y-m-d H:i') }}
                                 ／ {{ optional($record->timingTag)->timing_name ?? '—' }}
                             </h3>
-
                             <p class="mb-2">
                                 @if ($allDone)
                                     <span class="text-green-600 font-bold">内服完了</span>
@@ -30,7 +58,6 @@
                                     <span class="text-red-600 font-bold">内服未完了</span>
                                 @endif
                             </p>
-
                             <ul class="mt-2 list-disc pl-6">
                                 @forelse ($record->recordMedications as $rm)
                                     @php
@@ -52,7 +79,6 @@
                             </ul>
                         </div>
                     </a>
-                    {{-- ここまでカードの表示部分 --}}
                 @endforeach
             </div>
             <div class="mt-6">
@@ -61,7 +87,7 @@
         @endif
         <div class="mt-6">
             <a class="inline-block bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-                    href="{{ route('records.create') }}">
+                href="{{ route('records.create')}}">
                 新規作成
             </a>
         </div>

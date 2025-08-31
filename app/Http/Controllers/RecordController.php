@@ -16,12 +16,35 @@ class RecordController extends Controller
     /**
      * 一覧
      */
-    public function index()
+ public function index(Request $request)
     {
-        $records = Record::with(['recordMedications.medication','timingTag'])
-            ->where('user_id', Auth::id())
-            ->orderByDesc('taken_at')
-            ->paginate(20);
+        $query = Record::with('recordMedications','timingTag');
+
+        // 月で絞り込み
+        if ($request->filled('filter_month')) {
+            $query->whereMonth('taken_at', $request->input('filter_month'));
+        }
+
+        // 週で絞り込み
+        if ($request->filled('filter_week')) {
+            // 月の絞り込みも考慮して週の計算を行う
+            $month = $request->input('filter_month') ? (int)$request->input('filter_month') : now()->month;
+            $year = now()->year;
+
+            // まず、指定された月の初日を取得
+            $date = Carbon::createFromDate($year, $month, 1);
+
+            // 週の開始日を計算
+            // setISODate()は使わず、指定された週の初日を計算
+            // 例: 8月の4週目
+            // 8月の1日を基準に、4週目を計算する
+            $startOfWeek = $date->startOfMonth()->addWeeks((int)$request->input('filter_week') - 1)->startOfWeek(Carbon::SUNDAY);
+            $endOfWeek = $startOfWeek->copy()->endOfWeek(Carbon::SATURDAY);
+
+            $query->whereBetween('taken_at', [$startOfWeek, $endOfWeek]);
+        }
+        // 絞り込み条件を適用した上で、ページネーションを行う
+        $records = $query->latest('taken_at')->paginate(10);
 
         return view('records.index', compact('records'));
     }
