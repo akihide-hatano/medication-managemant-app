@@ -26,17 +26,17 @@
                     <p class="text-gray-600">{{ $record->timingTag->timing_name }}</p>
                     @forelse($record->recordMedications as $recordMedication)
                         <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
-                            <h4 class="font-bold text-gray-800">{{ $recordMedication->medication->medication_name }}</h4>
-                            <p class="text-sm text-gray-600"><strong>服用量:</strong> {{ $recordMedication->taken_dosage ?? '未設定' }}</p>
-                            <p class="text-sm text-gray-600"><strong>完了:</strong>
+                            <h4 class="text-xl font-bold text-blue-800 mb-2">{{ $recordMedication->medication->medication_name }}</h4>
+                            <p class="text-sm pr-2 text-gray-600"><strong>服用量</strong> {{ $recordMedication->taken_dosage ?? '未設定' }}</p>
+                            <p class="text-sm pr-2 text-gray-600"><strong>内服状況</strong>
                                 @if($recordMedication->is_completed)
-                                    ✅
+                                    <span class="text-green-600">完了</span>
                                 @else
-                                    ❌
+                                    <span class="text-red-600">未完了</span>
                                 @endif
                             </p>
                             @if(!$recordMedication->is_completed && $recordMedication->reason_not_taken)
-                                <p class="text-sm text-gray-600"><strong>理由:</strong> {{ $recordMedication->reason_not_taken }}</p>
+                                <p class="text-sm text-gray-600"><strong>理由</strong> {{ $recordMedication->reason_not_taken }}</p>
                             @endif
                         </div>
                     @empty
