@@ -18,7 +18,7 @@
                     {{-- 編集ボタンと削除ボタン --}}
                     <div class="flex space-x-4">
                         <a href="{{ route('records.edit', $record) }}"
-                           class="rounded-md bg-blue-600 px-6 py-2 text-white font-bold hover:bg-blue-700 shadow-lg transition-colors">編集</a>
+                            class="rounded-md bg-blue-600 px-6 py-2 text-white font-bold hover:bg-blue-700 shadow-lg transition-colors">編集</a>
                         <form action="{{ route('records.destroy', $record) }}" method="POST" onsubmit="return confirm('本当にこの記録を削除しますか？');">
                             @csrf
                             @method('DELETE')
