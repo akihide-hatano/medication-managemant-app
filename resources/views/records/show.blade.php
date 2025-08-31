@@ -15,9 +15,18 @@
                     <div>
                         <h1 class="text-3xl font-bold text-gray-800">{{ $record->taken_at->format('Y年m月d日') }}</h1>
                     </div>
-                    {{-- 編集ボタン --}}
-                    <a href="{{ route('records.edit', $record) }}"
-                       class="rounded-md bg-blue-600 px-6 py-2 text-white font-bold hover:bg-blue-700 shadow-lg transition-colors">編集</a>
+                    {{-- 編集ボタンと削除ボタン --}}
+                    <div class="flex space-x-4">
+                        <a href="{{ route('records.edit', $record) }}"
+                           class="rounded-md bg-blue-600 px-6 py-2 text-white font-bold hover:bg-blue-700 shadow-lg transition-colors">編集</a>
+                        <form action="{{ route('records.destroy', $record) }}" method="POST" onsubmit="return confirm('本当にこの記録を削除しますか？');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="rounded-md bg-red-600 px-6 py-2 text-white font-bold hover:bg-red-700 shadow-lg transition-colors">
+                                削除
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <hr class="my-6 border-t-2 border-gray-200">
