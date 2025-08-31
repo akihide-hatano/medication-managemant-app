@@ -7,17 +7,15 @@
         @if ($records->isEmpty())
             <p class="text-red-700">まだ記録はありません。</p>
         @else
-            {{-- h-fullを適用し、カードの高さを揃える --}}
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($records as $record)
                     @php
                         $total = $record->recordMedications->count();
-                        $completed = $record->recordMedications->where('is_completed',true)->count();
+                        $completed = $record->recordMedications->where('is_completed', true)->count();
                         $allDone = $total > 0 && $total === $completed;
                         $bgClass = $allDone ? 'bg-green-100' : 'bg-red-100';
                     @endphp
-
-                    {{-- ここにh-fullを追加 --}}
+                    {{--　内服薬薬のカード式 --}}
                     <a href="{{ route('records.show', $record) }}" class="block h-full">
                         <div class="border rounded-lg p-4 shadow hover:shadow-lg transition {{ $bgClass }} h-full">
                             <h3 class="font-bold text-lg mb-2">
@@ -35,25 +33,26 @@
 
                             <ul class="mt-2 list-disc pl-6">
                                 @forelse ($record->recordMedications as $rm)
-                                @php
-                                    $symbol = $rm->is_completed ? '○' : '×';
-                                    $color = $rm->is_completed ? 'text-green-600' : 'text-red-600';
-                                @endphp
+                                    @php
+                                        $symbol = $rm->is_completed ? '○' : '×';
+                                        $color = $rm->is_completed ? 'text-green-600' : 'text-red-600';
+                                    @endphp
                                     <li class="flex items-center">
                                         <span class="{{ $color }} font-bold mr-2">{{ $symbol }}</span>
                                         <span>{{ optional($rm->medication)->medication_name ?? '-' }}</span>
-                                        @if($rm->taken_dosage)
-                                        <span class="text-gray-500 ml-2">{{ $rm->taken_dosage }}</span>
+                                        @if ($rm->taken_dosage)
+                                            <span class="text-gray-500 ml-2">{{ $rm->taken_dosage }}</span>
                                         @endif
                                     </li>
                                 @empty
                                     <li class="text-gray-500">
                                         登録された内服薬はありません
                                     </li>
-                                @endforelse  {{-- ここを@endforelseに修正 --}}
+                                @endforelse
                             </ul>
                         </div>
                     </a>
+                    {{-- ここまでカードの表示部分 --}}
                 @endforeach
             </div>
             <div class="mt-6">
