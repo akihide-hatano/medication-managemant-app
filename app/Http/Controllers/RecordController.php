@@ -16,27 +16,27 @@ class RecordController extends Controller
     /**
      * 一覧
      */
-    public function index(Request $request)
+public function index(Request $request)
     {
-        $query = Record::query()->with('recordMedications','timingTag');
+        $query = Record::with('recordMedications','timingTag');
 
         // 週で絞り込み
         if ($request->filled('filter_date')) {
             [$year, $week] = explode('-W', $request->input('filter_date'));
-            $startOfWeek = Carbon::now()->setISODate((int)$year, (int)$week)->startOfWeek();
-            $endOfWeek = $startOfWeek->copy()->endOfWeek();
+            $startOfWeek = Carbon::now()->setISODate((int)$year, (int)$week)->startOfWeek(Carbon::SUNDAY);
+            $endOfWeek = $startOfWeek->copy()->endOfWeek(Carbon::SATURDAY);
             $query->whereBetween('taken_at', [$startOfWeek, $endOfWeek]);
         }
 
         // 完了状況で絞り込み
         if ($request->filled('filter_completion')) {
             if ($request->input('filter_completion') === 'completed') {
-                // 未完了の薬が一つもないレコードを絞り込む
+                // 未完了の薬が一つもない（つまり、すべて完了している）レコードを絞り込む
                 $query->whereDoesntHave('recordMedications', function ($subQuery) {
                     $subQuery->where('is_completed', false);
                 });
             } elseif ($request->input('filter_completion') === 'incomplete') {
-                // 一つでも未完了の薬があるレコードを絞り込む
+                // 未完了の薬が1つでもあるレコードを絞り込む
                 $query->whereHas('recordMedications', function ($subQuery) {
                     $subQuery->where('is_completed', false);
                 });
