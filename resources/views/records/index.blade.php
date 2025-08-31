@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-serif">内服薬記録一覧</h2>
+        <h2 class="text-xl">内服薬記録一覧</h2>
     </x-slot>
 
     <div class="container mx-auto p-4 max-w-6xl">
