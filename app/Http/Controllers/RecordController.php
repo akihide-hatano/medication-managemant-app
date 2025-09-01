@@ -85,7 +85,7 @@ public function index(Request $request)
         $tag      = TimingTag::findOrFail($data['timing_tag_id']);
         $baseTime = $tag->base_time ?: '09:00:00';
         $takenAt  = Carbon::parse($data['taken_date'] . ' ' . $baseTime);
-        
+
         return DB::transaction(function () use ($data, $takenAt) {
             // 親（Record）を作成
             $record = Record::firstOrCreate([
@@ -151,8 +151,8 @@ public function index(Request $request)
     /**
      * 親の更新（必要なら）
      */
-public function update(Request $request, Record $record)
-{
+    public function update(Request $request, Record $record)
+    {
     abort_unless($record->user_id === Auth::id(), 403);
 
     $data = $request->validate(
@@ -176,7 +176,6 @@ public function update(Request $request, Record $record)
         'timing_tag_id' => (int)$data['timing_tag_id'],
         'taken_at'      => Carbon::parse($data['taken_date'].' '.$baseTime),
     ]);
-
     // 子モデル（内服薬）の更新
     // 1. 既存の関連データをすべて削除
     $record->recordMedications()->delete();
@@ -200,5 +199,9 @@ public function update(Request $request, Record $record)
         $record->delete();
 
         return redirect()->route('records.index')->with('ok','記録を削除しました。');
+    }
+
+    public function calendar(){
+        return view('records.calendar');
     }
 }
