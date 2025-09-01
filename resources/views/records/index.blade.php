@@ -1,11 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-serif">内服薬記録一覧</h2>
+        <h2 class="text-xl text-center">内服薬記録一覧</h2>
     </x-slot>
 
     <div class="container mx-auto p-4 max-w-6xl">
-        {{-- 絞り込みフォームをカレンダーピッカーに修正 --}}
-        <form action="{{ route('records.index') }}" method="GET" class="mb-6 flex space-x-4 items-end">
+        <form action="{{ route('records.index') }}" method="GET" class="mb-6 flex space-x-4 items-end justify-center">
             <div>
                 <label for="filter_date" class="block text-sm font-medium text-gray-700">日付で絞り込み</label>
                 <input type="week" name="filter_date" id="filter_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" value="{{ request('filter_date') }}">
@@ -20,7 +19,7 @@
                     <option value="incomplete" @if(request('filter_completion') === 'incomplete') selected @endif>未完了</option>
                 </select>
             </div>
-            
+
             <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 絞り込む
             </button>
