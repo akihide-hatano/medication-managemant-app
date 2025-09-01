@@ -15,10 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-// 内服薬記録のJSONデータを返すAPIエンドポイント
-Route::middleware('auth:sanctum')->get('/records/events', [RecordController::class, 'getCalendarEvents'])
+Route::get('/records/events', [RecordController::class, 'getCalendarEvents'])
     ->name('api.records.getCalendarEvents');

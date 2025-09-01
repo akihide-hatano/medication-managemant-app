@@ -205,32 +205,29 @@ public function index(Request $request)
         return view('records.calendar');
     }
 
-     public function getCalendarEvents(Request $request)
+    public function getCalendarEvents(Request $request)
     {
         // ユーザーがログインしていることを確認
         if (!Auth::check()) {
             return response()->json([], 401); // 未認証の場合は空の配列を返す
         }
-    
         // ログインユーザーのすべてのレコードを取得
         // with() を使って関連する recordMedications を事前にロードし、N+1問題を回避する
         $records = Record::where('user_id', Auth::id())
-                          ->with('recordMedications')
-                          ->get();
-    
+                        ->with('recordMedications')
+                        ->get();
         // FullCalendarのイベント形式にデータを変換
         $events = $records->map(function ($record) {
             $total = $record->recordMedications->count();
             $completed = $record->recordMedications->where('is_completed', true)->count();
             $allDone = $total > 0 && $total === $completed;
-            
+
             return [
                 'title' => $allDone ? '内服完了' : '内服未完了',
                 'start' => $record->taken_at->format('Y-m-d'),
                 'color' => $allDone ? '#4CAF50' : '#F44336' // 完了は緑、未完了は赤
             ];
         });
-    
         return response()->json($events);
     }
 }

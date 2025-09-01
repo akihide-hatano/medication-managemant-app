@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
     // カレンダー画面（Blade）
     Route::get('/records/calendar', [RecordController::class, 'calendar'])
         ->name('records.calendar');
+    
+    // 👇これをここに追加！（セッション有効で動く）
+    Route::get('/api/records/events', [RecordController::class, 'getCalendarEvents'])
+        ->name('api.records.getCalendarEvents');
 
 
     // 通知の既読化

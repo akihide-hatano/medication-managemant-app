@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         // APIからイベントデータを取得するように設定
         events: {
-            url: '/records/events', // ここを新しいAPIルートに修正
+            url: '/api/records/events', // ここを新しいAPIルートに修正
             method: 'GET',
             failure: function() {
                 alert('内服薬記録の取得中にエラーが発生しました。');
