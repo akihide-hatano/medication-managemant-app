@@ -12,8 +12,14 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'title',
             right: 'dayGridMonth'
         },
-        // ここにデータベースから取得したイベントデータを追加します
-        events: []
+        // APIからイベントデータを取得するように設定
+        events: {
+            url: '/records/events', // ここを新しいAPIルートに修正
+            method: 'GET',
+            failure: function() {
+                alert('内服薬記録の取得中にエラーが発生しました。');
+            }
+        }
     });
     calendar.render();
 });
