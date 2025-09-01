@@ -21,23 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
-     // ===== カレンダー系（具体→一般の順で先に置く） =====
-
     // カレンダー画面（Blade）
     Route::get('/records/calendar', [RecordController::class, 'calendar'])
         ->name('records.calendar');
 
-    // カレンダーのイベントJSON（FullCalendar等用）
-    Route::get('/records/events', [RecordController::class, 'getCalendarEvents'])
-        ->name('records.getCalendarEvents');
-
-    // カレンダーから服用完了トグル
-    // record_id + medication_id は unique 制約がある前提（衝突なし）
-    Route::post('/records/{record}/medications/{medication_id}/toggle-completion',
-        [RecordController::class, 'toggleMedicationCompletionFromCalendar'])
-        ->whereNumber(['record','medication_id'])
-        ->name('records.toggleMedicationCompletionFromCalendar');
 
     // 通知の既読化
     Route::patch('/medication-reminders/{medicationReminder}/mark-as-read',
