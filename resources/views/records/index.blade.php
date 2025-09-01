@@ -4,28 +4,36 @@
     </x-slot>
 
     <div class="container mx-auto p-4 max-w-6xl">
-        <form action="{{ route('records.index') }}" method="GET" class="mb-6 flex space-x-4 items-end justify-center">
-            <div>
-                <label for="filter_date" class="block text-sm font-medium text-gray-700">日付で絞り込み</label>
-                <input type="week" name="filter_date" id="filter_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" value="{{ request('filter_date') }}">
-            </div>
+        {{-- 新しいコンテナでフォームと新規作成ボタンをまとめる --}}
+        <div class="mb-6 flex space-x-4 items-end justify-center">
+            {{-- 絞り込みフォーム --}}
+            <form action="{{ route('records.index') }}" method="GET" class="flex space-x-4 items-end justify-center">
+                <div>
+                    <label for="filter_date" class="block text-sm font-medium text-gray-700">日付で絞り込み</label>
+                    <input type="week" name="filter_date" id="filter_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" value="{{ request('filter_date') }}">
+                </div>
 
-            {{-- 新しい「完了状況」のドロップダウンを追加 --}}
-            <div>
-                <label for="filter_completion" class="block text-sm font-medium text-gray-700">完了状況</label>
-                <select name="filter_completion" id="filter_completion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    <option value="">すべて</option>
-                    <option value="completed" @if(request('filter_completion') === 'completed') selected @endif>完了</option>
-                    <option value="incomplete" @if(request('filter_completion') === 'incomplete') selected @endif>未完了</option>
-                </select>
-            </div>
+                <div>
+                    <label for="filter_completion" class="block text-sm font-medium text-gray-700">完了状況</label>
+                    <select name="filter_completion" id="filter_completion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option value="">すべて</option>
+                        <option value="completed" @if(request('filter_completion') === 'completed') selected @endif>完了</option>
+                        <option value="incomplete" @if(request('filter_completion') === 'incomplete') selected @endif>未完了</option>
+                    </select>
+                </div>
 
-            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                絞り込む
-            </button>
-        </form>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    絞り込む
+                </button>
+            </form>
 
-        {{-- 既存のカード表示部分 --}}
+            {{-- 新規作成ボタン --}}
+            <a class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition"
+                href="{{ route('records.create')}}">
+                新規作成
+            </a>
+        </div>
+        
         @if ($records->isEmpty())
             <p class="text-red-700">まだ記録はありません。</p>
         @else
@@ -77,11 +85,5 @@
                 {{ $records->appends(request()->query())->links() }}
             </div>
         @endif
-        <div class="mt-6">
-            <a class="inline-block bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-                href="{{ route('records.create')}}">
-                新規作成
-            </a>
-        </div>
     </div>
 </x-app-layout>
