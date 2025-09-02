@@ -214,8 +214,10 @@ public function index(Request $request)
         // ログインユーザーのすべてのレコードを取得
         // with() を使って関連する recordMedications を事前にロードし、N+1問題を回避する
         $records = Record::where('user_id', Auth::id())
-                        ->with('recordMedications')
+                        ->with('recordMedications','timingTag')
+                        ->orderBy('timing_tag_id')
                         ->get();
+
         // FullCalendarのイベント形式にデータを変換
         $events = $records->map(function ($record) {
             $total = $record->recordMedications->count();
