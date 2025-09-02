@@ -211,7 +211,7 @@ public function getCalendarEvents(Request $request)
         return response()->json([], 401);
     }
 
-    $q = Record::where('records.user_id', Auth::id())
+    $query = Record::where('records.user_id', Auth::id())
         ->join('timing_tags', 'records.timing_tag_id', '=', 'timing_tags.timing_tag_id')
         ->with('recordMedications')
         // ← PostgreSQL の “日付のみソート”
@@ -224,7 +224,7 @@ public function getCalendarEvents(Request $request)
             'timing_tags.sort_order',
         ]);
 
-    $records = $q->get();
+    $records = $query->get();
 
     $events = $records->map(function ($record) {
         $total     = $record->recordMedications->count();
