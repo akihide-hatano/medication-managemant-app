@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('内服薬記録の取得中にエラーが発生しました。');
             }
         },
+        
+        //eventが並びかえること
+        eventOrder: ['sort_order', 'title'],
+        eventOrderStrict: true,
+
         eventClick: function(info) {
             // クリックされたイベントの日付を取得
             const dateStr = info.event.startStr;

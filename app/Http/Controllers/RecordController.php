@@ -205,40 +205,41 @@ public function index(Request $request)
         return view('records.calendar');
     }
 
-    public function getCalendarEvents(Request $request)
-    {
-        // ユーザーがログインしていることを確認
-        if (!Auth::check()) {
-            return response()->json([], 401); // 未認証の場合は空の配列を返す
-        }
-        // ログインユーザーのすべてのレコードを取得
-        // with() を使って関連する recordMedications を事前にロードし、N+1問題を回避する
-        $records = Record::where('user_id', Auth::id())
-                        ->with('recordMedications','timingTag')
-                        ->orderBy('timing_tag_id')
-                        ->get();
-
-        // FullCalendarのイベント形式にデータを変換
-        $events = $records->map(function ($record) {
-            $total = $record->recordMedications->count();
-            $completed = $record->recordMedications->where('is_completed', true)->count();
-            $allDone = $total > 0 && $total === $completed;
-
-        // // TimingTag名を取得し、接尾語を追加
-        // $title = $record->timingTag->timing_name . ' (' . $completed . '/' . $total . ')';
-        // // 色を決定
-        
-        // タイミング名と完了状況を組み合わせたタイトルを作成
-        $statusMark = $allDone ? '〇' : '×';
-        $title =  $statusMark . ' '. $record->timingTag->timing_name;
-        $color = $allDone ? '#4CAF50' : '#F44336';// 完了は緑、未完了は赤
-
-            return [
-                'title' => $title,
-                'start' => $record->taken_at->format('Y-m-d'),
-                'color' => $color // 完了は緑、未完了は赤
-            ];
-        });
-        return response()->json($events);
+public function getCalendarEvents(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json([], 401);
     }
+
+    $q = Record::where('records.user_id', Auth::id())
+        ->join('timing_tags', 'records.timing_tag_id', '=', 'timing_tags.timing_tag_id')
+        ->with('recordMedications')
+        // ← PostgreSQL の “日付のみソート”
+        ->orderByRaw('records.taken_at::date ASC')
+        // 同日の中は sort_order で並べる
+        ->orderBy('timing_tags.sort_order', 'asc')
+        ->select([
+            'records.*',
+            'timing_tags.timing_name as timing_name_joined',
+            'timing_tags.sort_order',
+        ]);
+
+    $records = $q->get();
+
+    $events = $records->map(function ($record) {
+        $total     = $record->recordMedications->count();
+        $completed = $record->recordMedications->where('is_completed', true)->count();
+        $allDone   = $total > 0 && $total === $completed;
+
+        return [
+            'title'      => ($allDone ? '〇 ' : '× ') . $record->timing_name_joined,
+            'start'      => $record->taken_at->toDateString(), // 終日イベントとして出す
+            'allDay'     => true,
+            'color'      => $allDone ? '#4CAF50' : '#F44336',
+            'sort_order' => (int) $record->sort_order,          // 並びキーも返す（任意）
+        ];
+    });
+
+    return response()->json($events);
+}
 }
