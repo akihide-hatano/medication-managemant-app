@@ -19,6 +19,14 @@ document.addEventListener('DOMContentLoaded', function() {
             failure: function() {
                 alert('内服薬記録の取得中にエラーが発生しました。');
             }
+        },
+        eventClick: function(info) {
+            // クリックされたイベントの日付を取得
+            const dateStr = info.event.startStr;
+        
+            // 該当日の内服記録詳細ページへ遷移
+            // 遷移先のURLは、records.showルートに対応させます
+            window.location.href = `/records/${dateStr}`;
         }
     });
     calendar.render();

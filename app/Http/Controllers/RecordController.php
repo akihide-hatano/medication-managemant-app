@@ -222,10 +222,15 @@ public function index(Request $request)
             $completed = $record->recordMedications->where('is_completed', true)->count();
             $allDone = $total > 0 && $total === $completed;
 
+        // TimingTag名を取得し、接尾語を追加
+        $title = $record->timingTag->timing_name . ' (' . $completed . '/' . $total . ')';
+        // 色を決定
+        $color = $allDone ? '#4CAF50' : '#F44336'; // 完了は緑、未完了は赤
+
             return [
-                'title' => $allDone ? '内服完了' : '内服未完了',
+                'title' => $title,
                 'start' => $record->taken_at->format('Y-m-d'),
-                'color' => $allDone ? '#4CAF50' : '#F44336' // 完了は緑、未完了は赤
+                'color' => $color // 完了は緑、未完了は赤
             ];
         });
         return response()->json($events);
